@@ -32,3 +32,20 @@ pub mod polygon_tests {
         assert_eq!(area, 72.5);
     }
 }
+
+#[cfg(test)]
+pub mod line_tests {
+    use no_fit_polygon::structs::{Line, Point};
+
+    #[test]
+    fn test_two_point_constructor() {
+        // Arrange
+        let pt0 = Point::new().set_values(1.0, 0.0);
+        let pt1 = Point::new().set_values(2.0, 1.0);
+        let line = Line::new_from_points(&pt0, &pt1);
+
+        // Assert
+        assert_eq!(line.m, 1.0);
+        assert_eq!(line.b, -1.0);
+    }
+}

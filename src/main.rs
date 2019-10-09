@@ -1,7 +1,8 @@
 mod lib;
 mod tests;
+mod structs;
 
-use lib::structs::{Point, Polygon};
+use structs::{Point, Polygon, Line};
 
 fn main() {
 

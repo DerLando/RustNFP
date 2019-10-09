@@ -1,7 +1,7 @@
 #[cfg(test)]
 pub mod polygon_tests {
     // Note this useful idiom: importing names from outer (for mod tests) scope.
-    use no_fit_polygon::structs::{Polygon, Point};
+    use super::super::structs::{Polygon, Point};
 
     #[test]
     fn test_area_square() {
@@ -35,7 +35,7 @@ pub mod polygon_tests {
 
 #[cfg(test)]
 pub mod line_tests {
-    use no_fit_polygon::structs::{Line, Point};
+    use super::super::structs::{Line, Point};
 
     #[test]
     fn test_two_point_constructor() {

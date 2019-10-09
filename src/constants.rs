@@ -1,5 +1,3 @@
-use std::vec;
-
 pub mod constants{
     // unset value for undefined geometry
     pub const UNSET_VALUE: f64 = -123456.789;

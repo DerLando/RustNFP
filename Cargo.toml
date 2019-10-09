@@ -1,0 +1,7 @@
+[package]
+name = "no_fit_polygon"
+version = "0.1.0"
+authors = ["Lando <lando.schumpich@gmail.com>"]
+edition = "2018"
+
+[dependencies]

@@ -12,3 +12,6 @@ mod line_segment;
 
 pub use self::intersection::Intersection;
 pub mod intersection;
+
+pub use self::vector::Vector;
+mod vector;

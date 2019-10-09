@@ -1,16 +1,10 @@
 use super::{Line, Point};
 
-pub enum LineSegmentIntersectionResult {
-    None,
-    Point(Point),
-    Overlap(LineSegment)
-}
-
 #[derive(Debug)]
 pub struct LineSegment{
-    line: Line,
-    from: Point,
-    to: Point
+    pub line: Line,
+    pub from: Point,
+    pub to: Point
 }
 
 impl LineSegment{
@@ -26,4 +20,23 @@ impl LineSegment{
     pub fn calculate_length(&self) -> f64 {
         self.from.distance_to(&self.to)
     }
+
+    // public line on point check
+    pub fn is_point_on(&self, pt: &Point) -> bool {
+        // https://stackoverflow.com/a/328110
+
+        // co_linear check first
+        if Point::are_colinear(&self.from, &self.to, pt){
+            if self.from.x == self.to.x{
+                (self.from.x < pt.x && pt.x < self.to.x) | (self.from.x > pt.x && pt.x > self.to.x)
+            }
+            else{
+                (self.from.y < pt.x && pt.y < self.to.y) | (self.from.y > pt.y && pt.y > self.to.y)
+            }
+        }
+        else{
+            false
+        }
+    }
+
 }

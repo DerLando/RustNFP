@@ -1,3 +1,6 @@
+use super::{Vector};
+use crate::lib::constants;
+
 #[derive(Debug, Clone, PartialEq)]
 pub struct Point{
     pub x: f64,
@@ -16,6 +19,7 @@ impl Point {
         return self
     }
 
+    // public distance function
     pub fn distance_to(&self, other: &Point) -> f64 {
         // Check for same point
         if self == other {
@@ -26,6 +30,13 @@ impl Point {
             let y_distance = other.y - self.y;
             (x_distance * x_distance - y_distance * y_distance).sqrt()
         }
+    }
+
+    // public co-linear check for 3 points
+    pub fn are_colinear(pt0: &Point, pt1: &Point, pt2: &Point) -> bool {
+        let vec0 = Vector::new_from_points(&pt0, &pt1);
+        let vec1 = Vector::new_from_points(&pt0, &pt2);
+        Vector::cross_product(&vec0, &vec1).abs() < constants::ZERO_TOLERANCE
     }
     
 }

@@ -1,5 +1,11 @@
 use super::{Line, Point};
 
+pub enum LineSegmentIntersectionResult {
+    None,
+    Point(Point),
+    Overlap(LineSegment)
+}
+
 #[derive(Debug)]
 pub struct LineSegment{
     line: Line,

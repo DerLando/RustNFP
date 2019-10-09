@@ -9,3 +9,6 @@ mod polygon;
 
 pub use self::line_segment::LineSegment;
 mod line_segment;
+
+pub use self::intersection::Intersection;
+pub mod intersection;

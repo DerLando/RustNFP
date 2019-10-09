@@ -1,13 +1,6 @@
 use super::{Point};
 use crate::lib::constants;
 
-// possible result cases for line intersections
-pub enum LineIntersection {
-    None,
-    Point(Point),
-    Line(Line),
-}
-
 #[derive(Debug, Clone)]
 pub struct Line {
     pub m: f64, // rate of change
@@ -51,19 +44,6 @@ impl Line {
     pub fn point_at(&self, x: f64) -> Point {
         let y = self._evaluate_x(x);
         Point{x, y}
-    }
-
-    // Intersector function
-    pub fn intersect_line(&self, other: &Line) -> LineIntersection {
-        // test parallel
-        if self.is_parallel_to(other){
-            return LineIntersection::Line(self.clone())
-        }
-        else {
-            //https://en.wikipedia.org/wiki/Line%E2%80%93line_intersection
-            let x = (other.b - self.b) / (self.m - other.m);
-            return LineIntersection::Point(self.point_at(x))
-        }
     }
 
     // parallelity check

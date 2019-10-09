@@ -85,3 +85,49 @@ pub mod line_segment_tests {
     use super::super::structs::{LineSegment, Point};
 
 }
+
+#[cfg(test)]
+pub mod intersection_tests {
+    use super::super::structs::{LineSegment, Line, Point, Intersection};
+    use super::super::structs::intersection::{LineLineIntersectionResult};
+
+    #[test]
+    fn test_line_line_intersection_point() {
+        // Arrange
+        let pt0 = Point::new().set_values(-1.0, -1.0);
+        let pt1 = Point::new().set_values(1.0, 1.0);
+        let pt2 = Point::new().set_values(-1.0, 1.0);
+        let pt3 = Point::new().set_values(1.0, -1.0);
+        let line0 = Line::new_from_points(&pt0, &pt1);
+        let line1 = Line::new_from_points(&pt2, &pt3);
+
+        // Act
+        let result = Intersection::line_line(&line0, &line1);
+
+        // Assert
+        match result {
+            LineLineIntersectionResult::None => panic!("None"),
+            LineLineIntersectionResult::Point(pt) => assert_eq!(pt, Point::new()),
+            LineLineIntersectionResult::Equal => panic!("Equal"),
+        }
+    }
+
+        #[test]
+    fn test_line_line_intersection_equal() {
+        // Arrange
+        let pt0 = Point::new().set_values(-1.0, -1.0);
+        let pt1 = Point::new().set_values(1.0, 1.0);
+        let line0 = Line::new_from_points(&pt0, &pt1);
+        let line1 = Line::new_from_points(&pt1, &pt0);
+
+        // Act
+        let result = Intersection::line_line(&line0, &line1);
+
+        // Assert
+        match result {
+            LineLineIntersectionResult::None => panic!("None"),
+            LineLineIntersectionResult::Point(_) => panic!("Point"),
+            LineLineIntersectionResult::Equal => assert!(true),
+        }
+    }
+}

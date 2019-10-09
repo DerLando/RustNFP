@@ -6,3 +6,6 @@ mod line;
 
 pub use self::polygon::Polygon;
 mod polygon;
+
+pub use self::line_segment::LineSegment;
+mod line_segment;

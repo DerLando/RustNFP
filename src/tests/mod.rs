@@ -48,4 +48,40 @@ pub mod line_tests {
         assert_eq!(line.m, 1.0);
         assert_eq!(line.b, -1.0);
     }
+
+    #[test]
+    fn test_point_on_line() {
+        // Arrange
+        let pt0 = Point::new();
+        let pt1 = Point::new().set_values(1.0, 1.0);
+        let pt2 = Point::new().set_values(2.0, 2.0);
+        let line = Line::new_from_points(&pt0, &pt1);
+
+        // Assert
+        assert!(line.is_point_on(&pt2));
+    }
+}
+
+#[cfg(test)]
+pub mod point_tests {
+    use super::super::structs::{Point};
+
+    #[test]
+    fn test_point_distance() {
+        // Arrange
+        let pt0 = Point::new().set_values(0.0, 0.0);
+        let pt1 = Point::new().set_values(2.0, 0.0);
+
+        // Act
+        let dist = pt0.distance_to(&pt1);
+
+        // Assert
+        assert_eq!(dist, 2.0);
+    }
+}
+
+#[cfg(test)]
+pub mod line_segment_tests {
+    use super::super::structs::{LineSegment, Point};
+
 }

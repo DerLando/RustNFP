@@ -1,4 +1,4 @@
-#[derive(Debug)]
+#[derive(Debug, Clone, PartialEq)]
 pub struct Point{
     pub x: f64,
     pub y: f64
@@ -14,6 +14,18 @@ impl Point {
         self.x = x;
         self.y = y;
         return self
+    }
+
+    pub fn distance_to(&self, other: &Point) -> f64 {
+        // Check for same point
+        if self == other {
+            return 0.0
+        }
+        else{
+            let x_distance = other.x - self.x;
+            let y_distance = other.y - self.y;
+            (x_distance * x_distance - y_distance * y_distance).sqrt()
+        }
     }
     
 }

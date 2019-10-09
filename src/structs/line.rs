@@ -49,8 +49,7 @@ impl Line {
 
     // public point-at function, returns a point on the line for a givne x value
     pub fn point_at(&self, x: f64) -> Point {
-        // y = mx + b
-        let y = self.m * x + self.b;
+        let y = self._evaluate_x(x);
         Point{x, y}
     }
 
@@ -70,6 +69,17 @@ impl Line {
     // parallelity check
     pub fn is_parallel_to(&self, other: &Line) -> bool {
         (self.m - other.m).abs() < constants::ZERO_TOLERANCE
+    }
+
+    // point-on-line check
+    pub fn is_point_on(&self, pt: &Point) -> bool {
+        (self._evaluate_x(pt.x) - pt.y) < constants::ZERO_TOLERANCE
+    }
+
+    // private x-evaluator
+    fn _evaluate_x(&self, x: f64) -> f64 {
+        // y = mx + b
+        self.m * x + self.b
     }
 
 }

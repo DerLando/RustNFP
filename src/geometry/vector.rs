@@ -1,5 +1,4 @@
-use super::{Point};
-use crate::lib::constants;
+use super::{Point, constants};
 
 #[derive(Debug)]
 pub struct Vector {

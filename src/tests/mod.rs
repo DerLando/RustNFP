@@ -1,7 +1,7 @@
 #[cfg(test)]
 pub mod polygon_tests {
     // Note this useful idiom: importing names from outer (for mod tests) scope.
-    use super::super::structs::{Polygon, Point};
+    use super::super::geometry::{Polygon, Point};
 
     #[test]
     fn test_area_square() {
@@ -35,7 +35,7 @@ pub mod polygon_tests {
 
 #[cfg(test)]
 pub mod line_tests {
-    use super::super::structs::{Line, Point};
+    use super::super::geometry::{Line, Point, constants::ZERO_TOLERANCE};
 
     #[test]
     fn test_two_point_constructor() {
@@ -73,7 +73,7 @@ pub mod line_tests {
         let line = Line::new_from_points(&pt0, &pt1);
 
         // Assert
-        assert!(line.is_point_on(&pt2));
+        assert!(line.is_point_on(&pt2, ZERO_TOLERANCE));
     }
 
     #[test]
@@ -85,13 +85,13 @@ pub mod line_tests {
         let line = Line::new_from_points(&pt0, &pt1);
 
         // Assert
-        assert!(!line.is_point_on(&pt2));
+        assert!(!line.is_point_on(&pt2, ZERO_TOLERANCE));
     }
 }
 
 #[cfg(test)]
 pub mod point_tests {
-    use super::super::structs::{Point};
+    use super::super::geometry::{Point};
 
     #[test]
     fn test_point_distance() {
@@ -109,7 +109,7 @@ pub mod point_tests {
 
 #[cfg(test)]
 pub mod line_segment_tests {
-    use super::super::structs::{LineSegment, Point};
+    use super::super::geometry::{LineSegment, Point, constants::ZERO_TOLERANCE};
 
     #[test]
     fn test_line_segment_is_point_on() {
@@ -120,14 +120,14 @@ pub mod line_segment_tests {
         let line = LineSegment::new_from_points(&pt0, &pt1);
 
         // Assert
-        assert!(line.is_point_on(&pt_test));
+        assert!(line.is_point_on(&pt_test, ZERO_TOLERANCE));
     }
 }
 
 #[cfg(test)]
 pub mod intersection_tests {
-    use super::super::structs::{LineSegment, Line, Point, Intersection};
-    use super::super::structs::intersection::{LineLineIntersectionResult, LineSegmentLineSegmentIntersectionResult};
+    use super::super::geometry::{LineSegment, Line, Point, Intersection, constants::ZERO_TOLERANCE};
+    use super::super::geometry::intersection::{LineLineIntersectionResult, LineSegmentLineSegmentIntersectionResult};
 
     #[test]
     fn test_line_line_intersection_point() {
@@ -140,7 +140,7 @@ pub mod intersection_tests {
         let line1 = Line::new_from_points(&pt2, &pt3);
 
         // Act
-        let result = Intersection::line_line(&line0, &line1);
+        let result = Intersection::line_line(&line0, &line1, ZERO_TOLERANCE);
 
         // Assert
         match result {
@@ -159,7 +159,7 @@ pub mod intersection_tests {
         let line1 = Line::new_from_points(&pt1, &pt0);
 
         // Act
-        let result = Intersection::line_line(&line0, &line1);
+        let result = Intersection::line_line(&line0, &line1, ZERO_TOLERANCE);
 
         // Assert
         match result {
@@ -180,7 +180,7 @@ pub mod intersection_tests {
         let line1 = Line::new_from_points(&pt2, &pt3);
 
         // Act
-        let result = Intersection::line_line(&line0, &line1);
+        let result = Intersection::line_line(&line0, &line1, ZERO_TOLERANCE);
 
         // Assert
         match result {
@@ -201,7 +201,7 @@ pub mod intersection_tests {
         let line1 = LineSegment::new_from_points(&pt1, &pt2);
 
         // Act
-        let result = Intersection::line_segment_line_segment(&line0, &line1);
+        let result = Intersection::line_segment_line_segment(&line0, &line1, ZERO_TOLERANCE);
 
         // Assert
         match result {
@@ -223,7 +223,7 @@ pub mod intersection_tests {
         let line1 = LineSegment::new_from_points(&pt2, &pt3);
 
         // Act
-        let result = Intersection::line_segment_line_segment(&line0, &line1);
+        let result = Intersection::line_segment_line_segment(&line0, &line1, ZERO_TOLERANCE);
 
         // Assert
         match result {

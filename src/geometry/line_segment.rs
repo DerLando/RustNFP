@@ -22,11 +22,11 @@ impl LineSegment{
     }
 
     // public line on point check
-    pub fn is_point_on(&self, pt: &Point) -> bool {
+    pub fn is_point_on(&self, pt: &Point, tol: f64) -> bool {
         // https://stackoverflow.com/a/328110
 
         // co_linear check first
-        if Point::are_colinear(&self.from, &self.to, pt){
+        if Point::are_colinear(&self.from, &self.to, pt, tol){
             if self.from.x == self.to.x{
                 (self.from.x <= pt.x && pt.x <= self.to.x) | (self.from.x >= pt.x && pt.x >= self.to.x)
             }

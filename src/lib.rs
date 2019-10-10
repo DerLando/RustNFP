@@ -1,5 +1,12 @@
-pub mod constants{
-    // unset value for undefined geometry
-    pub const UNSET_VALUE: f64 = -123456.789;
-    pub const ZERO_TOLERANCE: f64 = 0.000001;
+mod geometry;
+mod tests;
+
+#[no_mangle]
+pub extern fn test_link() {
+    println!("Hello world, I am running from a rust library")
 }
+
+// #[no_mangle]
+// pub extern fn mass_intersect_line_segments_from_points(pts: Vec<Point>) -> Vec<Point> {
+
+// }

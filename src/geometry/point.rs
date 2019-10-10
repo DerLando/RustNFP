@@ -1,5 +1,4 @@
-use super::{Vector};
-use crate::lib::constants;
+use super::{Vector, constants};
 
 #[derive(Debug, Clone, PartialEq)]
 pub struct Point{
@@ -33,10 +32,10 @@ impl Point {
     }
 
     // public co-linear check for 3 points
-    pub fn are_colinear(pt0: &Point, pt1: &Point, pt2: &Point) -> bool {
+    pub fn are_colinear(pt0: &Point, pt1: &Point, pt2: &Point, tol: f64) -> bool {
         let vec0 = Vector::new_from_points(&pt0, &pt1);
         let vec1 = Vector::new_from_points(&pt0, &pt2);
-        Vector::cross_product(&vec0, &vec1).abs() < constants::ZERO_TOLERANCE
+        Vector::cross_product(&vec0, &vec1).abs() < tol
     }
     
 }

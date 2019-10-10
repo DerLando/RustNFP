@@ -1,5 +1,4 @@
-use super::{Point};
-use crate::lib::constants;
+use super::{Point, constants};
 
 #[derive(Debug, Clone, PartialEq)]
 pub struct Line {
@@ -47,13 +46,13 @@ impl Line {
     }
 
     // parallelity check
-    pub fn is_parallel_to(&self, other: &Line) -> bool {
-        (self.m - other.m).abs() < constants::ZERO_TOLERANCE
+    pub fn is_parallel_to(&self, other: &Line, tol: f64) -> bool {
+        (self.m - other.m).abs() < tol
     }
 
     // point-on-line check
-    pub fn is_point_on(&self, pt: &Point) -> bool {
-        (self._evaluate_x(pt.x) - pt.y).abs() < constants::ZERO_TOLERANCE
+    pub fn is_point_on(&self, pt: &Point, tol: f64) -> bool {
+        (self._evaluate_x(pt.x) - pt.y).abs() < tol
     }
 
     // private x-evaluator

@@ -4,4 +4,7 @@ version = "0.1.0"
 authors = ["Lando <lando.schumpich@gmail.com>"]
 edition = "2018"
 
-[dependencies]
+[lib]
+name = "rust_nfp"
+crate-type = ["dylib"]
+

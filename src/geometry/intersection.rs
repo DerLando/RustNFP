@@ -20,13 +20,13 @@ pub struct Intersection {
 
 impl Intersection {
     // public line - line intersection test
-    pub fn line_line(first: &Line, other: &Line) -> LineLineIntersectionResult {
+    pub fn line_line(first: &Line, other: &Line, tol: f64) -> LineLineIntersectionResult {
         // test parallel
-        if first.is_parallel_to(other){
+        if first.is_parallel_to(other, tol){
             println!("Parallel lines, {:?} and {:?}", first, other);
             // pick any point on first line and see if it lies on other line
             let pt_test = first.point_at(0.0);
-            if other.is_point_on(&pt_test){
+            if other.is_point_on(&pt_test, tol){
                 return LineLineIntersectionResult::Equal
             }
             else{
@@ -41,15 +41,15 @@ impl Intersection {
     }
 
     // public lineSegment - lineSegment intersection test
-    pub fn line_segment_line_segment(first: &LineSegment, other: &LineSegment) -> LineSegmentLineSegmentIntersectionResult {
+    pub fn line_segment_line_segment(first: &LineSegment, other: &LineSegment, tol: f64) -> LineSegmentLineSegmentIntersectionResult {
 
         // first check for infinite line intersection
-        match Intersection::line_line(&first.line, &other.line){
+        match Intersection::line_line(&first.line, &other.line, tol){
             // if no intersection on infinite, there can be no intersection on segments
             LineLineIntersectionResult::None => return LineSegmentLineSegmentIntersectionResult::None,
             LineLineIntersectionResult::Point(pt) => {
                 // test found intersection point if it lies on both segments
-                if first.is_point_on(&pt) && other.is_point_on(&pt){
+                if first.is_point_on(&pt, tol) && other.is_point_on(&pt, tol){
                     LineSegmentLineSegmentIntersectionResult::Point(pt)
                 }
                 else{

@@ -1,6 +1,6 @@
 use super::{Line, Point};
 
-#[derive(Debug)]
+#[derive(Debug, PartialEq)]
 pub struct LineSegment{
     pub line: Line,
     pub from: Point,
@@ -28,10 +28,10 @@ impl LineSegment{
         // co_linear check first
         if Point::are_colinear(&self.from, &self.to, pt){
             if self.from.x == self.to.x{
-                (self.from.x < pt.x && pt.x < self.to.x) | (self.from.x > pt.x && pt.x > self.to.x)
+                (self.from.x <= pt.x && pt.x <= self.to.x) | (self.from.x >= pt.x && pt.x >= self.to.x)
             }
             else{
-                (self.from.y < pt.x && pt.y < self.to.y) | (self.from.y > pt.y && pt.y > self.to.y)
+                (self.from.y <= pt.x && pt.y <= self.to.y) | (self.from.y >= pt.y && pt.y >= self.to.y)
             }
         }
         else{

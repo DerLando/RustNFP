@@ -1,7 +1,7 @@
 use super::{Point};
 use crate::lib::constants;
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, PartialEq)]
 pub struct Line {
     pub m: f64, // rate of change
     pub b: f64 // y offset
@@ -53,7 +53,7 @@ impl Line {
 
     // point-on-line check
     pub fn is_point_on(&self, pt: &Point) -> bool {
-        (self._evaluate_x(pt.x) - pt.y) < constants::ZERO_TOLERANCE
+        (self._evaluate_x(pt.x) - pt.y).abs() < constants::ZERO_TOLERANCE
     }
 
     // private x-evaluator

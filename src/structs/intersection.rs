@@ -58,8 +58,20 @@ impl Intersection {
             }
             LineLineIntersectionResult::Equal => {
                 // infinite lines are equal, so there must be overlap
-                // TODO: Write a real implementation!!!!
-                LineSegmentLineSegmentIntersectionResult::Overlap(LineSegment::new_from_points(&first.from, &first.to))
+                // store points in vec
+                let mut pts = vec![&first.from, &first.to, &other.from, &other.to];
+                // check if all x values are equal -> compare y values
+                if pts[0].x == pts[1].x && pts[1].x == pts[2].x && pts[2].x == pts[3].x {
+                    pts.sort_by(|a, b| b.y.partial_cmp(&a.x).unwrap())
+                }
+                else{
+                    // compare x values instead
+                    pts.sort_by(|a, b| b.x.partial_cmp(&a.x).unwrap())
+                }
+                pts.reverse();
+                println!("Points sorted are: {:?}", pts);
+                // line segment from leftmost (or lowest) to rightmost (or highest) point
+                LineSegmentLineSegmentIntersectionResult::Overlap(LineSegment::new_from_points(&pts[0], &pts[3]))
             }
         }
     }

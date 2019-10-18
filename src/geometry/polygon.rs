@@ -1,4 +1,4 @@
-use super::{Point, Line};
+use super::{Point, Line, LineSegment};
 
 #[derive(Debug)]
 pub struct Polygon{
@@ -41,6 +41,33 @@ impl Polygon {
             };
 
         area / 2.0
+    }
+
+    // public edge getter
+    pub fn calculate_edges(&self) -> Vec<LineSegment> {
+
+        // empty edge array
+        let edge_count = self.points.len();
+        let mut edges: Vec<LineSegment> = Vec::with_capacity(edge_count);
+
+        // iterate over points
+        for i in 0..edge_count {
+            let next_index = (i + 1) % (edge_count - 1);
+            edges.push(LineSegment::new_from_points(&self.points[i], &self.points[next_index]));
+        };
+
+        return edges;
+    }
+
+    // public point on
+    pub fn is_point_on(&self, pt_test: &Point, tol: f64) -> bool {
+        let edges = self.calculate_edges();
+        for edge in edges{
+            if edge.is_point_on(pt_test, tol) {
+                return true
+            }
+        }
+        false
     }
 
     // public static square from side length

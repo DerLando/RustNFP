@@ -14,6 +14,12 @@ pub enum LineLineIntersectionResult {
     Equal, // input lines are parallel (or anti-parallel) and have the same y offset
 }
 
+pub enum PolygonPolygonIntersectionResult {
+    None, // No intersection
+    Point(Point), // intersection in a single point
+    Multiple(Vec<Point>) // multiple intersections
+}
+
 pub struct Intersection {
 
 }
@@ -73,6 +79,40 @@ impl Intersection {
                 // line segment from leftmost (or lowest) to rightmost (or highest) point
                 LineSegmentLineSegmentIntersectionResult::Overlap(LineSegment::new_from_points(&pts[0], &pts[3]))
             }
+        }
+    }
+
+    // public polygon - polygon
+    pub fn polygon_polygon(first: &Polygon, other: &Polygon, tol: f64) -> PolygonPolygonIntersectionResult {
+        let first_edges = first.calculate_edges();
+        let other_edges = other.calculate_edges();
+        let mut int_pts: Vec<Point> = Vec::new();
+        let mut found_intersection = false;
+
+        println!("first edges are: {:?}", first_edges);
+        println!("other edges are: {:?}", other_edges);
+
+        for f_edge in &first_edges {
+            for o_edge in &other_edges {
+                match Intersection::line_segment_line_segment(&f_edge, &o_edge, tol){
+                    LineSegmentLineSegmentIntersectionResult::None => continue,
+                    LineSegmentLineSegmentIntersectionResult::Point(int_pt) =>{
+                        int_pts.push(int_pt);
+                        found_intersection = true;
+                },
+                    LineSegmentLineSegmentIntersectionResult::Overlap(int_line) =>{
+                        int_pts.append(&mut vec![int_line.from, int_line.to]);
+                        found_intersection = true;
+                    }
+            };
+        };
+        }
+
+        // check results
+        if !found_intersection {PolygonPolygonIntersectionResult::None}
+        else {
+            if int_pts.len() == 1 {PolygonPolygonIntersectionResult::Point(int_pts[0].clone())}
+            else{PolygonPolygonIntersectionResult::Multiple(int_pts)}
         }
     }
 }

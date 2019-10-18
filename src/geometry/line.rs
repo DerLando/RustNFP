@@ -1,4 +1,5 @@
 use super::{Point, constants};
+use std::f64::{INFINITY, NEG_INFINITY};
 
 #[derive(Debug, Clone, PartialEq)]
 pub struct Line {
@@ -17,8 +18,24 @@ impl Line {
         Line{m: m, b: b}
     }
 
+    pub const YAXIS: Line = Line{m: INFINITY, b: 0.0};
+
     // constructor from two given points
     pub fn new_from_points(pt0: &Point, pt1: &Point) -> Line {
+
+        // axes checks
+        if(pt0.x - pt1.x).abs() < constants::ZERO_TOLERANCE {
+            // parallel to y axis
+            return Line::YAXIS
+        }
+        else{
+            if (pt0.y - pt1.y).abs() < constants::ZERO_TOLERANCE {
+                // parallel to x axis
+                return Line::new_from_values(0.0, pt0.y)
+            }
+        }
+
+        // no parallelity to axes, business as usual
         let m = Line::calculate_slope(pt0, pt1);
         let b = Line::calculate_y_offset(m, pt0);
 
@@ -39,7 +56,7 @@ impl Line {
         return pt.y - m * pt.x;
     }
 
-    // public point-at function, returns a point on the line for a givne x value
+    // public point-at function, returns a point on the line for a given x value
     pub fn point_at(&self, x: f64) -> Point {
         let y = self._evaluate_x(x);
         Point{x, y}

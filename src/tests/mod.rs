@@ -1,7 +1,7 @@
 #[cfg(test)]
 pub mod polygon_tests {
     // Note this useful idiom: importing names from outer (for mod tests) scope.
-    use super::super::geometry::{Polygon, Point};
+    use super::super::geometry::{Polygon, Point, constants::ZERO_TOLERANCE};
 
     #[test]
     fn test_area_square() {
@@ -30,6 +30,16 @@ pub mod polygon_tests {
 
         // Assert
         assert_eq!(area, 72.5);
+    }
+
+    #[test]
+    fn test_point_on() {
+        // Arrange
+        let poly = Polygon::square(2.0);
+        let pt_test = Point::new().set_values(1.0, 1.0);
+
+        // Assert
+        assert!(poly.is_point_on(&pt_test, ZERO_TOLERANCE))
     }
 }
 
@@ -87,6 +97,18 @@ pub mod line_tests {
         // Assert
         assert!(!line.is_point_on(&pt2, ZERO_TOLERANCE));
     }
+
+    #[test]
+    fn test_point_on_line_parallel_to_x_axis() {
+        // Arrange
+        let pt0 = Point::new().set_values(0.0, 5.0);
+        let pt1 = Point::new().set_values(1.0, 5.0);
+        let pt_test = Point::new().set_values(8.0, 5.0);
+        let line = Line::new_from_points(&pt0, &pt1);
+
+        // Assert
+        assert!(line.is_point_on(&pt_test, ZERO_TOLERANCE))
+    }
 }
 
 #[cfg(test)]
@@ -126,8 +148,8 @@ pub mod line_segment_tests {
 
 #[cfg(test)]
 pub mod intersection_tests {
-    use super::super::geometry::{LineSegment, Line, Point, Intersection, constants::ZERO_TOLERANCE};
-    use super::super::geometry::intersection::{LineLineIntersectionResult, LineSegmentLineSegmentIntersectionResult};
+    use super::super::geometry::{LineSegment, Line, Point, Intersection, Polygon, constants::ZERO_TOLERANCE};
+    use super::super::geometry::intersection::{LineLineIntersectionResult, LineSegmentLineSegmentIntersectionResult, PolygonPolygonIntersectionResult};
 
     #[test]
     fn test_line_line_intersection_point() {
@@ -231,5 +253,30 @@ pub mod intersection_tests {
             LineSegmentLineSegmentIntersectionResult::Point(_) => panic!("Point found"),
             LineSegmentLineSegmentIntersectionResult::Overlap(line) => assert_eq!(line, LineSegment::new_from_points(&pt0, &pt3)),
         }
+    }
+
+    #[test]
+    fn test_polygon_polygon_intersection_point() {
+        // Arrange
+        let pt0 = Point::new().set_values(0.5, 1.0);
+        let pt1 = Point::new().set_values(3.0, 3.0);
+        let pt2 = Point::new().set_values(-3.0, 3.0);
+
+        let tri = Polygon::from_points(vec![pt0, pt1, pt2]);
+        let square = Polygon::square(2.0);
+
+        // Act
+        let result = Intersection::polygon_polygon(&tri, &square, ZERO_TOLERANCE);
+
+        // Assert
+        match result {
+            PolygonPolygonIntersectionResult::None => panic!("No intersection"),
+            PolygonPolygonIntersectionResult::Point(pt_int) => assert_eq!(pt_int, Point::new().set_values(0.5, 1.0)),
+            PolygonPolygonIntersectionResult::Multiple(pts) => {
+                println!("Multiple int points are: {:?}", pts);
+                panic!("Multiple");
+            }
+        }
+        
     }
 }

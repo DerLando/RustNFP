@@ -1,4 +1,4 @@
-use super::{Point, Line, LineSegment};
+use super::{Point, Line, LineSegment, Vector};
 use std::iter::FromIterator;
 
 #[derive(Debug)]
@@ -60,6 +60,24 @@ impl Polygon {
         };
 
         return edges;
+    }
+
+    // public interior angle calculator
+    pub fn calculate_angles(&self) -> Vec<f64> {
+        let corner_count = self.points.len();
+        let mut angles: Vec<f64> = Vec::with_capacity(corner_count);
+
+        for i in 0..corner_count {
+            let prev_index = (i + corner_count - 1) % corner_count;
+            let next_index = (i + 1) % corner_count;
+
+            let v_from_last_corner = Vector::new_from_points(&self.points[prev_index], &self.points[i]);
+            let v_to_next_corner = Vector::new_from_points(&self.points[i], &self.points[next_index]);
+
+            angles.push(v_from_last_corner.angle_to(&v_to_next_corner));
+        }
+
+        return angles;
     }
 
     // public point on

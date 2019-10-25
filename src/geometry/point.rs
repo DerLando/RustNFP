@@ -31,6 +31,19 @@ impl Point {
         }
     }
 
+    //
+    pub fn distance_to_squared(&self, other: &Point) -> f64 {
+        // check same point
+        if self == other {
+            return 0.0
+        }
+        else {
+            let x_distance = other.x - self.x;
+            let y_distance = other.y - self.y;
+            x_distance * x_distance - y_distance * y_distance
+        }
+    }
+
     // public equals function under tolerance
     pub fn epsilon_equals(&self, other: &Point, tol: f64) -> bool {
         (self.x - other.x).abs() < tol && (self.y - other.y).abs() < tol

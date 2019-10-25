@@ -2,6 +2,7 @@
 pub mod polygon_tests {
     // Note this useful idiom: importing names from outer (for mod tests) scope.
     use super::super::geometry::{Polygon, Point, LineSegment, constants::ZERO_TOLERANCE};
+    use std::f64::consts::PI;
 
     #[test]
     fn test_area_square() {
@@ -59,6 +60,20 @@ pub mod polygon_tests {
         // Assert
         assert_eq!(edges, vec![e1, e2, e3]);
 
+    }
+
+    #[test]
+    fn test_angles_consistent() {
+        // Arrange
+        let poly = Polygon::square(2.0);
+
+        // Act
+        let angles = poly.calculate_angles();
+
+        // Assert
+        for angle in angles.iter() {
+            assert_eq!(*angle, PI / 2.0);
+        }
     }
 }
 

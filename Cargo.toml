@@ -2,6 +2,7 @@
 name = "no_fit_polygon"
 version = "0.1.0"
 authors = ["Lando <lando.schumpich@gmail.com>"]
+license = "MIT OR Apache-2.0"
 edition = "2018"
 
 [lib]

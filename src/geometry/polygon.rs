@@ -1,4 +1,5 @@
 use super::{Point, Line, LineSegment};
+use std::iter::FromIterator;
 
 #[derive(Debug)]
 pub struct Polygon{
@@ -14,7 +15,9 @@ impl Polygon {
 
     // public helper to construct from points
     pub fn from_points(pts: &Vec<Point>) -> Polygon {
-        Polygon{points: pts.clone()}
+        // let cloned_points = pts.iter().map(|p| p.clone()).collect::<Vec<_>>();
+        let cloned_points = pts.clone();
+        Polygon{points: cloned_points}
     }
 
     // public helper to add a point to the end of the points list

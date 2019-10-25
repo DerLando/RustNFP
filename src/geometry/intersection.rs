@@ -159,8 +159,10 @@ impl Intersection {
                 match Intersection::line_segment_line_segment(&f_edge, &o_edge, tol){
                     LineSegmentLineSegmentIntersectionResult::None => continue,
                     LineSegmentLineSegmentIntersectionResult::Point(int_pt) =>{
-                        int_pts.push(int_pt);
-                        found_intersection = true;
+                        if !int_pts.contains(&int_pt) {
+                            int_pts.push(int_pt);
+                            found_intersection = true;
+                        }
                 },
                     LineSegmentLineSegmentIntersectionResult::Overlap(int_line) =>{
                         int_pts.append(&mut vec![int_line.from, int_line.to]);

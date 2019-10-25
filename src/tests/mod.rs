@@ -399,7 +399,7 @@ pub mod intersection_tests {
         // Assert
         match result {
             PolygonPolygonIntersectionResult::None => panic!("No intersection"),
-            PolygonPolygonIntersectionResult::Point(pt_int) => assert_eq!(pt_int, Point::new().set_values(0.5, 1.0)),
+            PolygonPolygonIntersectionResult::Point(pt_int) => assert_eq!(pt_int, pt0),
             PolygonPolygonIntersectionResult::Multiple(pts) => {
                 println!("Multiple int points are: {:?}", pts);
                 panic!("Multiple");

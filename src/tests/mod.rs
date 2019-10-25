@@ -1,7 +1,7 @@
 #[cfg(test)]
 pub mod polygon_tests {
     // Note this useful idiom: importing names from outer (for mod tests) scope.
-    use super::super::geometry::{Polygon, Point, constants::ZERO_TOLERANCE};
+    use super::super::geometry::{Polygon, Point, LineSegment, constants::ZERO_TOLERANCE};
 
     #[test]
     fn test_area_square() {
@@ -23,7 +23,7 @@ pub mod polygon_tests {
         let pt2 = Point::new().set_values(14.0, 9.0);
         let pt3 = Point::new().set_values(4.0, 10.0);
         let vec = vec![pt0, pt1, pt2, pt3];
-        let poly = Polygon::from_points(vec);
+        let poly = Polygon::from_points(&vec);
 
         // Act
         let area = poly.calculate_area();
@@ -40,6 +40,25 @@ pub mod polygon_tests {
 
         // Assert
         assert!(poly.is_point_on(&pt_test, ZERO_TOLERANCE))
+    }
+
+    #[test]
+    fn test_edges_consistent() {
+        //Arrange
+        let pt0 = Point::new();
+        let pt1 = Point::new().set_values(1.0, 1.0);
+        let pt2 = Point::new().set_values(-1.0, 1.0);
+        let e1 = LineSegment::new_from_points(&pt0, &pt1);
+        let e2 = LineSegment::new_from_points(&pt1, &pt2);
+        let e3 = LineSegment::new_from_points(&pt2, &pt0);
+        let poly = Polygon::from_points(&vec![pt0, pt1, pt2]);
+
+        //Act
+        let edges = poly.calculate_edges();
+
+        // Assert
+        assert_eq!(edges, vec![e1, e2, e3]);
+
     }
 }
 
@@ -315,11 +334,11 @@ pub mod intersection_tests {
     #[test]
     fn test_polygon_polygon_intersection_point() {
         // Arrange
-        let pt0 = Point::new().set_values(0.5, 1.0);
+        let pt0 = Point::new().set_values(1.0, 1.0);
         let pt1 = Point::new().set_values(3.0, 3.0);
         let pt2 = Point::new().set_values(-3.0, 3.0);
 
-        let tri = Polygon::from_points(vec![pt0, pt1, pt2]);
+        let tri = Polygon::from_points(&vec![pt0, pt1, pt2]);
         let square = Polygon::square(2.0);
 
         // Act

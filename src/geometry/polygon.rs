@@ -8,13 +8,13 @@ pub struct Polygon{
 impl Polygon {
     // public new helper
     pub fn new() -> Polygon {
-        let mut pts: Vec<Point> = Vec::new();
+        let pts: Vec<Point> = Vec::new();
         Polygon{points: pts}
     }
 
     // public helper to construct from points
-    pub fn from_points(pts: Vec<Point>) -> Polygon {
-        Polygon{points: pts}
+    pub fn from_points(pts: &Vec<Point>) -> Polygon {
+        Polygon{points: pts.clone()}
     }
 
     // public helper to add a point to the end of the points list
@@ -52,7 +52,7 @@ impl Polygon {
 
         // iterate over points
         for i in 0..edge_count {
-            let next_index = (i + 1) % (edge_count - 1);
+            let next_index = (i + 1) % (edge_count);
             edges.push(LineSegment::new_from_points(&self.points[i], &self.points[next_index]));
         };
 
@@ -77,6 +77,6 @@ impl Polygon {
         let pt2 = Point::new().set_values(len / 2.0, len / 2.0);
         let pt3 = Point::new().set_values(-len / 2.0, len / 2.0);
 
-        Polygon::from_points(vec![pt0, pt1, pt2, pt3])
+        Polygon::from_points(&vec![pt0, pt1, pt2, pt3])
     }
 }

@@ -31,6 +31,11 @@ impl Point {
         }
     }
 
+    // public equals function under tolerance
+    pub fn epsilon_equals(&self, other: &Point, tol: f64) -> bool {
+        (self.x - other.x).abs() < tol && (self.y - other.y).abs() < tol
+    }
+
     // public co-linear check for 3 points
     pub fn are_colinear(pt0: &Point, pt1: &Point, pt2: &Point, tol: f64) -> bool {
         let vec0 = Vector::new_from_points(&pt0, &pt1);

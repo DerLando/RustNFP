@@ -53,8 +53,8 @@ impl Intersection {
         // see: https://en.wikipedia.org/wiki/Line%E2%80%93line_intersection
 
         // check denominator == 0 in tolerance -> early exit
-        // d = (x1 - x2)(y3 - y4) - (y1 - y2)(x3 - x4)
-        let denominator = (first.from.x - first.to.x) * (other.from.y - other.to.y) - (first.from.y - first.to.y) * (other.from.x - other.to.x);
+        let denominator = first.denominator_with_other(other);
+        println!("denominator is {} for line segments {:?} and {:?}", denominator, first, other);
         match denominator.abs() < tol{
             // parallel lines!, check for coincident, line segments have to share a point!
             true => match other.is_point_on(&first.from, tol) | first.is_point_on(&other.from, tol) {
@@ -80,45 +80,43 @@ impl Intersection {
                 }
             }
             false => {
-                // we have guaranteed intersection, calculate param on first segment
-                let first_param = ((first.from.x - other.from.x) * (other.from.y - other.to.y) - (first.from.y - other.from.y) * (other.from.x - other.to.x)) /
-                                ((first.from.x - first.to.x) * (other.from.y - other.to.y) - (first.from.y - first.to.y) * (other.from.x - other.to.x));
-                LineSegmentLineSegmentIntersectionResult::Point(first.point_at_normalized_parameter(first_param))
-                
+
+                // make this readable at the cost of memory :/
+                let x1 = first.from.x;
+                let x2 = first.to.x;
+                let x3 = other.from.x;
+                let x4 = other.to.x;
+                let y1 = first.from.y;
+                let y2 = first.to.y;
+                let y3 = other.from.y;
+                let y4 = other.to.y;
+
+                // calculate possible intersection point on self and other
+                let divisor = (x1 - x2) * (y3 - y4) - (y1 - y2) * (x3 - x4);
+                let first_param = ((x1 - x3) * (y3 - y4) - (y1 - y3) * (x3 - x4)) / divisor;
+                // early exit if param not normalized
+                if (0.0 > first_param) || (first_param > 1.0){
+                    println!("First param was {}, early exit", first_param);
+                    return LineSegmentLineSegmentIntersectionResult::None
+                }
+
+                let other_param = ((x1 - x2) * (y1 - y3) - (y1 - y2) * (x1 - x3)) / divisor;
+                // early exit if param not normalized
+                if (0.0 > other_param) || (other_param > 1.0){
+                    println!("Other param was {}, early exit", other_param);
+                    return LineSegmentLineSegmentIntersectionResult::None
+                }
+
+                println!("Evaluation parameters I found are: {} and {}", first_param, other_param);
+
+                // now we are sure the intersection point lies on both lines
+                let int_pt_x = ((x1 * y2 - y1 * x2) * (x3 - x4) - (x1 - x2) * (x3 * y4 - y3 * x4)) / divisor;
+                let int_pt_y = ((x1 * y2 - y1 * x2) * (y3 - y4) - (y1 - y2) * (x3 * y4 - y3 * x4)) / divisor;
+
+                LineSegmentLineSegmentIntersectionResult::Point(Point::new().set_values(int_pt_x, int_pt_y))
+
             }
         }
-
-        // // first check for infinite line intersection
-        // match Intersection::line_line(&first.line, &other.line, tol){
-        //     // if no intersection on infinite, there can be no intersection on segments
-        //     LineLineIntersectionResult::None => return LineSegmentLineSegmentIntersectionResult::None,
-        //     LineLineIntersectionResult::Point(pt) => {
-        //         // test found intersection point if it lies on both segments
-        //         if first.is_point_on(&pt, tol) && other.is_point_on(&pt, tol){
-        //             LineSegmentLineSegmentIntersectionResult::Point(pt)
-        //         }
-        //         else{
-        //             LineSegmentLineSegmentIntersectionResult::None
-        //         }
-        //     }
-        //     LineLineIntersectionResult::Equal => {
-        //         // infinite lines are equal, so there must be overlap
-        //         // store points in vec
-        //         let mut pts = vec![&first.from, &first.to, &other.from, &other.to];
-        //         // check if all x values are equal -> compare y values
-        //         if pts[0].x == pts[1].x && pts[1].x == pts[2].x && pts[2].x == pts[3].x {
-        //             pts.sort_by(|a, b| b.y.partial_cmp(&a.x).unwrap())
-        //         }
-        //         else{
-        //             // compare x values instead
-        //             pts.sort_by(|a, b| b.x.partial_cmp(&a.x).unwrap())
-        //         }
-        //         pts.reverse();
-        //         println!("Points sorted are: {:?}", pts);
-        //         // line segment from leftmost (or lowest) to rightmost (or highest) point
-        //         LineSegmentLineSegmentIntersectionResult::Overlap(LineSegment::new_from_points(&pts[0], &pts[3]))
-        //     }
-        // }
     }
 
     // public polygon - polygon

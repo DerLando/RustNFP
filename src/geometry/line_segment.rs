@@ -39,6 +39,12 @@ impl LineSegment{
         }
     }
 
+    // public denominator calculation
+    // d = (x1 - x2)(y3 - y4) - (y1 - y2)(x3 - x4)
+    pub fn denominator_with_other(&self, other: &LineSegment) -> f64 {
+        (self.from.x - self.to.x) * (other.from.y - other.to.y) - (self.from.y - self.to.y) * (other.from.x - other.to.x)
+    }
+
     // public bezier parameter evaluation
     pub fn point_at_normalized_parameter(&self, t: f64) -> Point {
         if (t < 0.0) | (t > 1.0) {panic!("point_at_normalized_parameter ERROR: Parameter was not normalized!");}

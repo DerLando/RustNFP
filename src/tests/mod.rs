@@ -144,6 +144,20 @@ pub mod line_segment_tests {
         // Assert
         assert!(line.is_point_on(&pt_test, ZERO_TOLERANCE));
     }
+
+    #[test]
+    fn test_denominator_zero_on_parallel() {
+        //Arrange
+        let pt0 = Point::new().set_values(0.0, 1.0);
+        let pt1 = Point::new().set_values(0.0, 5.0);
+        let pt2 = Point::new().set_values(4.0, 2.0);
+        let pt3 = Point::new().set_values(4.0, 8.0);
+        let line1 = LineSegment::new_from_points(&pt0, &pt1);
+        let line2 = LineSegment::new_from_points(&pt2, &pt3);
+
+        // Assert
+        assert!(line1.denominator_with_other(&line2).abs() < ZERO_TOLERANCE);
+    }
 }
 
 #[cfg(test)]
@@ -229,6 +243,49 @@ pub mod intersection_tests {
         match result {
             LineSegmentLineSegmentIntersectionResult::None => panic!("None"),
             LineSegmentLineSegmentIntersectionResult::Point(pt) => assert_eq!(pt, pt1),
+            LineSegmentLineSegmentIntersectionResult::Overlap(_) => panic!("Overlap"),
+
+        }
+    }
+
+    #[test]
+    fn test_line_segment_line_segment_vertical_horizontal_point() {
+        // Arrange
+        let pt0 = Point::new().set_values(-1.0, -1.0);
+        let pt1 = Point::new().set_values(-1.0, 1.0);
+        let pt2 = Point::new().set_values(2.0, 1.0);
+        let line0 = LineSegment::new_from_points(&pt0, &pt1);
+        let line1 = LineSegment::new_from_points(&pt1, &pt2);
+
+        // Act
+        let result = Intersection::line_segment_line_segment(&line0, &line1, ZERO_TOLERANCE);
+
+        // Assert
+        match result {
+            LineSegmentLineSegmentIntersectionResult::None => panic!("None"),
+            LineSegmentLineSegmentIntersectionResult::Point(pt) => assert_eq!(pt, pt1),
+            LineSegmentLineSegmentIntersectionResult::Overlap(_) => panic!("Overlap"),
+
+        }
+    }
+
+    #[test]
+    fn test_line_segment_line_segment_vertical_horizontal_none() {
+        // Arrange
+        let pt0 = Point::new().set_values(-1.0, -1.0);
+        let pt1 = Point::new().set_values(-1.0, 1.0);
+        let pt2 = Point::new().set_values(2.0, 1.0);
+        let pt3 = Point::new().set_values(4.0, 1.0);
+        let line0 = LineSegment::new_from_points(&pt0, &pt1);
+        let line1 = LineSegment::new_from_points(&pt2, &pt3);
+
+        // Act
+        let result = Intersection::line_segment_line_segment(&line0, &line1, ZERO_TOLERANCE);
+
+        // Assert
+        match result {
+            LineSegmentLineSegmentIntersectionResult::None => assert!(true),
+            LineSegmentLineSegmentIntersectionResult::Point(pt) => panic!(format!("Found a point, {:?}", pt)),
             LineSegmentLineSegmentIntersectionResult::Overlap(_) => panic!("Overlap"),
 
         }

@@ -272,9 +272,10 @@ pub mod intersection_tests {
         // Arrange
         let pt0 = Point::new().set_values(-1.0, -1.0);
         let pt1 = Point::new().set_values(-1.0, 1.0);
-        let pt2 = Point::new().set_values(2.0, 1.0);
+        let pt2 = Point::new().set_values(-2.0, 1.0);
+        let pt3 = Point::new().set_values(2.0, 1.0);
         let line0 = LineSegment::new_from_points(&pt0, &pt1);
-        let line1 = LineSegment::new_from_points(&pt1, &pt2);
+        let line1 = LineSegment::new_from_points(&pt2, &pt3);
 
         // Act
         let result = Intersection::line_segment_line_segment(&line0, &line1, ZERO_TOLERANCE);
@@ -328,6 +329,57 @@ pub mod intersection_tests {
             LineSegmentLineSegmentIntersectionResult::None => panic!("None"),
             LineSegmentLineSegmentIntersectionResult::Point(_) => panic!("Point found"),
             LineSegmentLineSegmentIntersectionResult::Overlap(line) => assert_eq!(line, LineSegment::new_from_points(&pt0, &pt3)),
+        }
+    }
+
+    #[test]
+    fn test_polygon_edges_intersection_yields_corners() {
+        // Arrange
+        let poly = Polygon::square(2.0);
+        let original_corners = &poly.points;
+        let edges = poly.calculate_edges();
+
+        // Act
+        for n in 0..edges.len() {
+            let next_index = (n + 1) % edges.len();
+            let prev_index = (n + edges.len() - 1) % edges.len();
+            let l1 = LineSegment::new_from_points(&original_corners[prev_index], &original_corners[n]);
+            let l2 = LineSegment::new_from_points(&original_corners[n], &original_corners[next_index]);
+
+            match Intersection::line_segment_line_segment(&l1, &l2, ZERO_TOLERANCE) {
+                LineSegmentLineSegmentIntersectionResult::None => panic!("None"),
+                LineSegmentLineSegmentIntersectionResult::Overlap(_) => panic!("Overlap"),
+                LineSegmentLineSegmentIntersectionResult::Point(pt) => {
+                    if !pt.epsilon_equals(&original_corners[n], ZERO_TOLERANCE){
+                        panic!(format!("Points were not equal under epsilon on index {}!, {:?}, {:?}", n, pt, original_corners[n]))
+                    }
+                }
+            }
+        }
+
+        assert!(true)
+    }
+
+    #[test]
+    fn test_polygon_polygon_intersection_none() {
+        // Arrange
+        let poly1 = Polygon::square(3.0);
+        let poly2 = Polygon::square(1.0);
+
+        // Act
+        let result = Intersection::polygon_polygon(&poly1, &poly2, ZERO_TOLERANCE);
+
+        // Assert
+        match result {
+            PolygonPolygonIntersectionResult::None => assert!(true),
+            PolygonPolygonIntersectionResult::Point(pt_int) => {
+                println!("Found single intersection point: {:?}", pt_int);
+                panic!("Point");
+            },
+            PolygonPolygonIntersectionResult::Multiple(pts) => {
+                println!("Multiple int points are: {:?}", pts);
+                panic!("Multiple");
+            }
         }
     }
 

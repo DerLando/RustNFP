@@ -46,11 +46,35 @@ impl Intersection {
         }
     }
 
-    // public lineSegment - lineSegment intersection test
+    /// Intersection between two `LineSegment` instances
+    /// see: https://en.wikipedia.org/wiki/Line%E2%80%93line_intersection for some information on the math used
+    /// 
+    /// # Examples
+    /// 
+    /// ```
+    /// use rust_nfp::geometry::{Intersection, Point, LineSegment}; // geometric structs
+    /// use rust_nfp::geometry::intersection::{LineSegmentLineSegmentIntersectionResult}; // intersection results enum
+    /// 
+    /// let tol = 0.0001; // geometric tolerance for operations
+    /// 
+    /// let pt0 = Point::new(); // point at origin
+    /// let pt1 = Point::new().set_values(0.0, 2.0);
+    /// let pt2 = Point::new().set_values(-1.0, 2.0);
+    /// let pt3 = Point::new().set_values(1.0, 2.0);
+    /// 
+    /// let line0 = LineSegment::new_from_points(&pt0, &pt1); // new line segment from pt0 to pt1
+    /// let line1 = LineSegment::new_from_points(&pt2, &pt3);
+    /// 
+    /// let result = Intersection::line_segment_line_segment(&line0, &line1, tol);
+    /// match result {
+    ///     LineSegmentLineSegmentIntersectionResult::None => panic!("Expected intersection!"),
+    ///     LineSegmentLineSegmentIntersectionResult::Overlap(overlap_segment) => panic!(format!("Expected intersection, found overlap: {:?}", {overlap_segment})),
+    ///     LineSegmentLineSegmentIntersectionResult::Point(pt) => assert!(pt.epsilon_equals(&pt1, tol))
+    /// }
+    /// 
     pub fn line_segment_line_segment(first: &LineSegment, other: &LineSegment, tol: f64) -> LineSegmentLineSegmentIntersectionResult {
 
         // new algorithm bazed on bezier representation
-        // see: https://en.wikipedia.org/wiki/Line%E2%80%93line_intersection
 
         // check denominator == 0 in tolerance -> early exit
         let denominator = first.denominator_with_other(other);
@@ -93,6 +117,7 @@ impl Intersection {
 
                 // calculate possible intersection point on self and other
                 let divisor = (x1 - x2) * (y3 - y4) - (y1 - y2) * (x3 - x4);
+                
                 let first_param = ((x1 - x3) * (y3 - y4) - (y1 - y3) * (x3 - x4)) / divisor;
                 // early exit if param not normalized
                 if (0.0 > first_param) || (first_param > 1.0){
@@ -100,7 +125,7 @@ impl Intersection {
                     return LineSegmentLineSegmentIntersectionResult::None
                 }
 
-                let other_param = ((x1 - x2) * (y1 - y3) - (y1 - y2) * (x1 - x3)) / divisor;
+                let other_param = ((x1 - x2) * (y1 - y3) - (y1 - y2) * (x1 - x3)) / divisor * -1.0;
                 // early exit if param not normalized
                 if (0.0 > other_param) || (other_param > 1.0){
                     println!("Other param was {}, early exit", other_param);

@@ -1,4 +1,4 @@
-mod geometry;
+pub mod geometry;
 mod tests;
 
 use geometry::{Point, Polygon, LineSegment, Line, Vector};

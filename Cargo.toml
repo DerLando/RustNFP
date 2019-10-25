@@ -6,5 +6,4 @@ edition = "2018"
 
 [lib]
 name = "rust_nfp"
-crate-type = ["dylib"]
 

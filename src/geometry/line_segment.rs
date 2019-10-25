@@ -39,4 +39,12 @@ impl LineSegment{
         }
     }
 
+    // public bezier parameter evaluation
+    pub fn point_at_normalized_parameter(&self, t: f64) -> Point {
+        if (t < 0.0) | (t > 1.0) {panic!("point_at_normalized_parameter ERROR: Parameter was not normalized!");}
+        Point {
+            x: self.from.x + t * (self.to.x - self.from.x),
+            y: self.from.y + t * (self.to.y - self.from.y)}
+    }
+
 }

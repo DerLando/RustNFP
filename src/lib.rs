@@ -43,7 +43,7 @@ pub mod lib {
         all_edges.extend(other.calculate_edges());
 
         // sort by angle to x_axis
-        all_edges.sort_by(|a, b| (b.angle_to(&x_axis)).partial_cmp(&(a.angle_to(&x_axis))).unwrap());
+        all_edges.sort_by(|a, b| (x_axis.angle_to(&b)).partial_cmp(&(x_axis.angle_to(&a))).unwrap());
 
         // create sorted list, first item is first edge popped
         let mut edges_sorted: Vec<LineSegment> = vec![all_edges.pop().unwrap()];
@@ -58,7 +58,8 @@ pub mod lib {
             println!("angles from pt to x: {:?}", all_angles_pt_to_x);
             let next_edge = all_edges.pop().unwrap();
             println!("next_edge is: {:?}", next_edge);
-            edges_sorted.push(next_edge.copy_to_point(&last_edge.to));
+            let next_edge_moved = next_edge.copy_to_point(&last_edge.to);
+            edges_sorted.push(next_edge_moved);
         }
 
         Polygon::from_edges(&edges_sorted)

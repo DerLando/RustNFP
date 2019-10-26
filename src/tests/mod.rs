@@ -143,6 +143,22 @@ pub mod vector_tests {
         // Assert
         assert_ne!(angle_between_v1_and_v2, angle_between_v2_and_v1);
     }
+
+    #[test]
+    fn test_vector_angle_225_degrees_edge_case() {
+        // Arrange
+        let x_axis = Vector::new().set_values(1.0, 0.0);
+        let v_bottom_left = Vector::new().set_values(-2.0, -2.0);
+        let v_bottom_right = Vector::new().set_values(2.0, -2.0);
+
+        // Act
+        let angle_bottom_left = x_axis.angle_to(&v_bottom_left);
+        let angle_bottom_right = x_axis.angle_to(&v_bottom_right);
+
+        // Assert
+        assert_eq!(angle_bottom_left, 1.25 * PI);
+        assert_eq!(angle_bottom_right, 1.75 * PI);
+    }
 }
 
 #[cfg(test)]

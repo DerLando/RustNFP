@@ -82,11 +82,16 @@ impl Vector {
     /// 
     /// assert!((v0.angle_to(&v1) - PI).abs() < 0.000001)
     pub fn angle_to(&self, other: &Vector) -> f64 {
+        // dot product gives shortest angle
         let angle = self.as_normalized().dot_product(&other.as_normalized()).acos();
+
+        // compute sign -> positive sign is angle less then pi
         let sign = Vector::cross_product(self, &other);
-        let mut fac = 1.0 * std::f64::consts::PI;
-        if sign >= 0.0 {
-            fac = 0.0;
+
+        // compute mirror factor, set to zero if positive sign
+        let mut fac = 0.0;
+        if sign < 0.0 {
+            fac = 2.0 * (std::f64::consts::PI - angle);
         }
 
         (angle + fac) % (2.0 * std::f64::consts::PI)

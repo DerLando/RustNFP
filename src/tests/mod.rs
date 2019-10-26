@@ -101,6 +101,51 @@ pub mod polygon_tests {
 }
 
 #[cfg(test)]
+pub mod vector_tests {
+    use super::super::geometry::{Vector, Polygon, Point, LineSegment, constants::ZERO_TOLERANCE};
+    use std::f64::consts::PI;
+
+    #[test]
+    fn test_vector_angle_anti_parallel() {
+        // Arrange
+        let v1 = Vector::new().set_values(1.0, 0.0);
+        let v2 = Vector::new().set_values(-1.0, 0.0);
+
+        // Act
+        let angle = v1.angle_to(&v2);
+
+        // Assert
+        assert_eq!(angle, PI);
+    }
+
+    #[test]
+    fn test_vector_angle_same() {
+        // Arrange
+        let v1 = Vector::new().set_values(1.0, 1.0);
+
+        // Act
+        let angle = v1.angle_to(&v1);
+
+        // Assert
+        assert!(angle.abs() < ZERO_TOLERANCE)
+    }
+
+    #[test]
+    fn test_vector_angle_order_matters() {
+        // Arrange
+        let v1 = Vector::new().set_values(1.0, 0.0);
+        let v2 = Vector::new().set_values(1.0, 0.5);
+
+        // Act
+        let angle_between_v1_and_v2 = v1.angle_to(&v2);
+        let angle_between_v2_and_v1 = v2.angle_to(&v1);
+
+        // Assert
+        assert_ne!(angle_between_v1_and_v2, angle_between_v2_and_v1);
+    }
+}
+
+#[cfg(test)]
 pub mod line_tests {
     use super::super::geometry::{Line, Point, constants::ZERO_TOLERANCE};
 

@@ -55,5 +55,12 @@ impl Point {
         let vec1 = Vector::new_from_points(&pt0, &pt2);
         Vector::cross_product(&vec0, &vec1).abs() < tol
     }
+
+    pub fn copy_along_vector(&self, v: &Vector) -> Point {
+        Point {
+            x: self.x + v.x,
+            y: self.y + v.y
+        }
+    }
     
 }

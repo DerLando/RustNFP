@@ -1,6 +1,6 @@
 use super::{Point, constants};
 
-#[derive(Debug)]
+#[derive(Debug, PartialEq)]
 pub struct Vector {
     pub x: f64,
     pub y: f64,
@@ -29,14 +29,27 @@ impl Vector {
         }
     }
 
+    pub fn epsilon_equals(&self, other: &Vector, tol: f64) -> bool {
+        (self.x - other.x).abs() < tol && (self.y - other.y).abs() < tol
+    }
+
     // public length function
     pub fn calculate_length(&self) -> f64 {
+        if self.x == self.y && self.x == 0.0 {
+            return 0.0
+        }
+
         (self.x * self.x + self.y * self.y).sqrt()
     }
 
     // public normalizer
     pub fn normalize(mut self) {
         let len = self.calculate_length();
+
+        if len == 0.0 {
+            return
+        }
+
         self.x /= len;
         self.y /= len;
     }
@@ -44,15 +57,39 @@ impl Vector {
     // normalized copy
     pub fn as_normalized(&self) -> Vector {
         let len = self.calculate_length();
+
+        if len == 0.0 {
+            return Vector::new()
+        }
+
         Vector{
             x: self.x / len,
             y: self.y / len
         }
     }
 
-    // angle function
+    /// Calculates signed angle between two vectors
+    /// angles are parametrized between 0 and 2PI going counter-clockwise
+    /// 
+    /// # Examples
+    /// 
+    /// ```
+    /// use rust_nfp::geometry::{Vector};
+    /// use std::f64::consts::PI;
+    /// 
+    /// let v0 = Vector::new().set_values(1.0, 1.0);
+    /// let v1 = Vector::new().set_values(-1.0, -1.0);
+    /// 
+    /// assert!((v0.angle_to(&v1) - PI).abs() < 0.000001)
     pub fn angle_to(&self, other: &Vector) -> f64 {
-        (self.as_normalized().dot_product(&other.as_normalized()).acos())
+        let angle = self.as_normalized().dot_product(&other.as_normalized()).acos();
+        let sign = Vector::cross_product(self, &other);
+        let mut fac = 1.0 * std::f64::consts::PI;
+        if sign >= 0.0 {
+            fac = 0.0;
+        }
+
+        (angle + fac) % (2.0 * std::f64::consts::PI)
     }
 
     // public static cross-product

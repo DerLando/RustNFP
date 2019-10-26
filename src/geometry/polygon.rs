@@ -20,9 +20,54 @@ impl Polygon {
         Polygon{points: cloned_points}
     }
 
+    /// Public constructor from a list of line-segments
+    /// WARNING: There are no error checks, this will just push start-points of the line segment in the points vector!
+    /// 
+    /// # Examples
+    /// 
+    /// ```
+    /// use rust_nfp::geometry::{Polygon}; // geometric structs
+    /// 
+    /// let tol = 0.001; // geometric tolerance
+    /// 
+    /// let poly = Polygon::square(2.0); // square with side length 2.0
+    /// let edges = poly.calculate_edges();
+    /// let reconstructed = Polygon::from_edges(&edges);
+    /// assert!(reconstructed.epsilon_equals(&poly, tol));
+    /// ```
+    pub fn from_edges(edges: &Vec<LineSegment>) -> Polygon {
+        let edge_count = edges.len();
+        let mut pts: Vec<Point> = Vec::with_capacity(edge_count);
+
+        for n in 0..edge_count {
+            pts.push(edges[n].from);
+        }
+
+        Polygon{
+            points: pts
+        }
+    }
+
     // public helper to add a point to the end of the points list
     pub fn add_point(mut self, pt: Point) {
         self.points.push(pt)
+    }
+
+    /// Public equality check under tolerance
+    /// 
+    /// # Examples
+    /// 
+    /// ```
+    /// use rust_nfp::geometry::{Polygon}; // geometric structs
+    /// 
+    /// let tol = 0.001; // geometric tolerance
+    /// 
+    /// let poly = Polygon::square(2.0); // square with side length 2.0
+    /// let other = Polygon::square(2.00001); // pretty close side length ;)
+    /// 
+    /// assert!(poly.epsilon_equals(&other, tol));
+    pub fn epsilon_equals(&self, other: &Polygon, tol: f64) -> bool {
+        self.points.iter().zip(&other.points).all(|(x, y)| x.epsilon_equals(&y, tol))
     }
 
     // public area calculation
@@ -62,6 +107,13 @@ impl Polygon {
         return edges;
     }
 
+    // public single edge getter
+    pub fn calculate_single_edge(&self, index: usize) -> LineSegment {
+        let next_index = (index + 1) % self.points.len();
+
+        LineSegment::new_from_points(&self.points[index], &self.points[next_index])
+    }
+
     // public concavity test
     pub fn is_concave(&self) -> bool {
         self.calculate_angles().iter().any(|&x| x > std::f64::consts::PI / 2.0)
@@ -99,6 +151,11 @@ impl Polygon {
             }
         }
         false
+    }
+
+    // public reverse orientation
+    pub fn reverse_orientation(&mut self) {
+        self.points.reverse()
     }
 
     // public static square from side length

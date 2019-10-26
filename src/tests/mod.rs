@@ -75,6 +75,29 @@ pub mod polygon_tests {
             assert_eq!(*angle, PI / 2.0);
         }
     }
+
+    #[test]
+    fn test_convex() {
+        // Arrange
+        let poly = Polygon::square(2.0);
+
+        // Assert
+        assert!(poly.is_convex());
+    }
+
+    #[test]
+    fn test_concave() {
+        // Arrange
+        let pt0 = Point::new();
+        let pt1 = Point::new().set_values(2.0, 0.0);
+        let pt2 = Point::new().set_values(1.0, 2.0);
+        let pt3 = Point::new().set_values(2.0, 4.0);
+        let pt4 = Point::new().set_values(0.0, 4.0);
+        let poly = Polygon::from_points(&vec![pt0, pt1, pt2, pt3, pt4]);
+
+        // Assert
+        assert!(poly.is_concave());
+    }
 }
 
 #[cfg(test)]

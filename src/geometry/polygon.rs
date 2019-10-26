@@ -62,6 +62,16 @@ impl Polygon {
         return edges;
     }
 
+    // public concavity test
+    pub fn is_concave(&self) -> bool {
+        self.calculate_angles().iter().any(|&x| x > std::f64::consts::PI / 2.0)
+    }
+
+    // public convex test
+    pub fn is_convex(&self) -> bool {
+        !self.is_concave()
+    }
+
     // public interior angle calculator
     pub fn calculate_angles(&self) -> Vec<f64> {
         let corner_count = self.points.len();

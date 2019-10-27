@@ -211,87 +211,167 @@ impl Polygon {
             }
         }
 
-        let corner_count = self.points.len();
-        let angles = self.calculate_angles();
-        let mut possible_partition_lines: Vec<PartitionLine> = Vec::new();
-        let edges = self.calculate_edges();
+        // copy points in array that can be manipulated
+        let mut corners = Vec::from_iter(self.points[..].iter().cloned());
 
-        // iterate over all corners
-        for n in 0..corner_count {
-            // inner angle > 180° -> cannot be a valid partition line
-            if angles[n] > PI {
-                continue;
-            }
+        while corners.len() > 3 {
+            let poly = Polygon::from_points(&corners);
+            let corner_count = poly.points.len();
+            let angles = poly.calculate_angles();
+            let mut possible_partition_lines: Vec<PartitionLine> = Vec::new();
+            let edges = poly.calculate_edges();
 
-            let prev_index = (n + corner_count - 1) % corner_count;
-            let next_index = (n + 1) % corner_count;
-            let mut is_intersecting = false;
+            println!("Current poly is: {:?}", poly);
 
-            let line = LineSegment::new_from_points(&self.points[prev_index], &self.points[next_index]);
-            for i in 0..corner_count {
-                if (i == prev_index) | (i == n) {
-                    continue
+            // iterate over all corners
+            for n in 0..corner_count {
+                // inner angle > 180° -> cannot be a valid partition line
+                if angles[n] > PI {
+                    continue;
                 }
-                let edge = &edges[i];
-                match Intersection::line_segment_line_segment(&line, edge, tol) {
-                    LineSegmentLineSegmentIntersectionResult::None => continue,
-                    LineSegmentLineSegmentIntersectionResult::Overlap(_) => {
-                        is_intersecting = true;
-                        break;
-                    },
-                    LineSegmentLineSegmentIntersectionResult::Point(pt) => {
-                        if pt.epsilon_equals(&edge.from, tol) | pt.epsilon_equals(&edge.to, tol) {
-                            println!("Line for corner {}, intersecting edge {}, Point was fine {:?}", n, i, pt);
-                            continue;
-                        }
-                        else {
-                            println!("Line for corner {}, intersecting edge {}, Point was NOT fine {:?} \nLines in question are {:?} and \n{:?}", n, i, pt, line, edge);
+
+                let prev_index = (n + corner_count - 1) % corner_count;
+                let next_index = (n + 1) % corner_count;
+                let mut is_intersecting = false;
+
+                let line = LineSegment::new_from_points(&poly.points[prev_index], &poly.points[next_index]);
+                for i in 0..corner_count {
+                    if (i == prev_index) | (i == n) {
+                        continue
+                    }
+                    let edge = &edges[i];
+                    match Intersection::line_segment_line_segment(&line, edge, tol) {
+                        LineSegmentLineSegmentIntersectionResult::None => continue,
+                        LineSegmentLineSegmentIntersectionResult::Overlap(_) => {
                             is_intersecting = true;
                             break;
+                        },
+                        LineSegmentLineSegmentIntersectionResult::Point(pt) => {
+                            if pt.epsilon_equals(&edge.from, tol) | pt.epsilon_equals(&edge.to, tol) {
+                                // println!("Line for corner {}, intersecting edge {}, Point was fine {:?}", n, i, pt);
+                                continue;
+                            }
+                            else {
+                                // println!("Line for corner {}, intersecting edge {}, Point was NOT fine {:?} \nLines in question are {:?} and \n{:?}", n, i, pt, line, edge);
+                                is_intersecting = true;
+                                break;
+                            }
                         }
                     }
                 }
+
+                if is_intersecting{
+                    continue;
+                }
+                // TODO: We can calculate the angles here explicitly, so we don't have to iterate the corners twice
+
+                // push partition line
+                possible_partition_lines.push(PartitionLine{
+                    from: prev_index, 
+                    to: next_index,
+                    middle: n,
+                    length: poly.points[prev_index].distance_to_squared(&poly.points[next_index])});
             }
 
-            if is_intersecting{
-                continue;
-            }
-            // TODO: We can calculate the angles here explicitly, so we don't have to iterate the corners twice
+            // sort partition lines by their length
+            possible_partition_lines.sort_by(|a, b| b.length.partial_cmp(&a.length).unwrap());
 
-            // push partition line
-            possible_partition_lines.push(PartitionLine{
-                from: prev_index, 
-                to: next_index,
-                middle: n,
-                length: self.points[prev_index].distance_to_squared(&self.points[next_index])});
+            // println!("Partition lines sorted are: {:?}", possible_partition_lines);
+
+            // shortest partition line is what we want
+            let found_partition = possible_partition_lines.pop().unwrap();
+            convex_parts.push(Polygon::from_points(&vec![poly.points[found_partition.from], poly.points[found_partition.middle], poly.points[found_partition.to]]));
+
+            // remove used vertex and start over
+            corners.remove(found_partition.middle);
         }
 
-        // sort partition lines by their length
-        possible_partition_lines.sort_by(|a, b| b.length.partial_cmp(&a.length).unwrap());
-
-        println!("Partition lines sorted are: {:?}", possible_partition_lines);
-
-        // TODO: THis has to be done iteratively!
-        // After selecting our partition, we remove the vertex and do it all over on a new polygon
-        // which is the original polygon minus the removed vertex
-        // this feels awfully inefficient, but lets go with this for now
-
-        // filter out all valid partitions
-        let mut valid_partitions: Vec<PartitionLine> = Vec::new();
-        while possible_partition_lines.len() > 0 {
-            // pop shortest line and add to valid partitions
-            valid_partitions.push(possible_partition_lines.pop().unwrap());
-
-            // remove all now invalid lines
-            let last_line = valid_partitions.last().unwrap();
-            possible_partition_lines.retain(|x| !x.contains_other_middle(&last_line));
-        }
-
-        // valid partitions is now filled, build new polys from it
-        for partition in valid_partitions {
-            convex_parts.push(Polygon::from_points(&vec![self.points[partition.from], self.points[partition.middle], self.points[partition.to]]));
-        }
+        // corners now has only 3 points left -> convex poly
+        convex_parts.push(Polygon::from_points(&corners));
 
         return convex_parts;
+
+        // let corner_count = self.points.len();
+        // let angles = self.calculate_angles();
+        // let mut possible_partition_lines: Vec<PartitionLine> = Vec::new();
+        // let edges = self.calculate_edges();
+
+        // // iterate over all corners
+        // for n in 0..corner_count {
+        //     // inner angle > 180° -> cannot be a valid partition line
+        //     if angles[n] > PI {
+        //         continue;
+        //     }
+
+        //     let prev_index = (n + corner_count - 1) % corner_count;
+        //     let next_index = (n + 1) % corner_count;
+        //     let mut is_intersecting = false;
+
+        //     let line = LineSegment::new_from_points(&self.points[prev_index], &self.points[next_index]);
+        //     for i in 0..corner_count {
+        //         if (i == prev_index) | (i == n) {
+        //             continue
+        //         }
+        //         let edge = &edges[i];
+        //         match Intersection::line_segment_line_segment(&line, edge, tol) {
+        //             LineSegmentLineSegmentIntersectionResult::None => continue,
+        //             LineSegmentLineSegmentIntersectionResult::Overlap(_) => {
+        //                 is_intersecting = true;
+        //                 break;
+        //             },
+        //             LineSegmentLineSegmentIntersectionResult::Point(pt) => {
+        //                 if pt.epsilon_equals(&edge.from, tol) | pt.epsilon_equals(&edge.to, tol) {
+        //                     println!("Line for corner {}, intersecting edge {}, Point was fine {:?}", n, i, pt);
+        //                     continue;
+        //                 }
+        //                 else {
+        //                     println!("Line for corner {}, intersecting edge {}, Point was NOT fine {:?} \nLines in question are {:?} and \n{:?}", n, i, pt, line, edge);
+        //                     is_intersecting = true;
+        //                     break;
+        //                 }
+        //             }
+        //         }
+        //     }
+
+        //     if is_intersecting{
+        //         continue;
+        //     }
+        //     // TODO: We can calculate the angles here explicitly, so we don't have to iterate the corners twice
+
+        //     // push partition line
+        //     possible_partition_lines.push(PartitionLine{
+        //         from: prev_index, 
+        //         to: next_index,
+        //         middle: n,
+        //         length: self.points[prev_index].distance_to_squared(&self.points[next_index])});
+        // }
+
+        // // sort partition lines by their length
+        // possible_partition_lines.sort_by(|a, b| b.length.partial_cmp(&a.length).unwrap());
+
+        // println!("Partition lines sorted are: {:?}", possible_partition_lines);
+
+        // // TODO: THis has to be done iteratively!
+        // // After selecting our partition, we remove the vertex and do it all over on a new polygon
+        // // which is the original polygon minus the removed vertex
+        // // this feels awfully inefficient, but lets go with this for now
+
+        // // filter out all valid partitions
+        // let mut valid_partitions: Vec<PartitionLine> = Vec::new();
+        // while possible_partition_lines.len() > 0 {
+        //     // pop shortest line and add to valid partitions
+        //     valid_partitions.push(possible_partition_lines.pop().unwrap());
+
+        //     // remove all now invalid lines
+        //     let last_line = valid_partitions.last().unwrap();
+        //     possible_partition_lines.retain(|x| !x.contains_other_middle(&last_line));
+        // }
+
+        // // valid partitions is now filled, build new polys from it
+        // for partition in valid_partitions {
+        //     convex_parts.push(Polygon::from_points(&vec![self.points[partition.from], self.points[partition.middle], self.points[partition.to]]));
+        // }
+
+        // return convex_parts;
     }
 }

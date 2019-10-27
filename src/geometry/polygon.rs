@@ -170,6 +170,20 @@ impl Polygon {
         Polygon::from_points(&vec![pt0, pt1, pt2, pt3])
     }
 
+    pub fn circle(radius: f64, corner_count: usize) -> Polygon {
+        if corner_count == 0 {
+            return Polygon::new();
+        }
+
+        let rot_step = 2.0 * PI / corner_count as f64;
+        let mut corners: Vec<Point> = Vec::with_capacity(corner_count);
+        for n in 0..corner_count {
+            corners.push(Point::new_from_polar(radius, n as f64 * rot_step));
+        }
+
+        Polygon::from_points(&corners)
+    }
+
     pub fn triangulate(&self, tol: f64) -> Vec<Polygon> {
         let mut convex_parts: Vec<Polygon> = Vec::new();
 

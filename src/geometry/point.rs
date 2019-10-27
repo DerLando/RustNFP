@@ -18,6 +18,13 @@ impl Point {
         return self
     }
 
+    pub fn new_from_polar(r: f64, polar: f64) -> Point {
+        Point{
+            x: r * polar.cos(),
+            y: r * polar.sin()
+        }
+    }
+
     // public distance function
     pub fn distance_to(&self, other: &Point) -> f64 {
         // Check for same point

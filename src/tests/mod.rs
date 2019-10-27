@@ -98,6 +98,24 @@ pub mod polygon_tests {
         // Assert
         assert!(poly.is_concave());
     }
+
+    #[test]
+    fn test_triangulation() {
+        // Arrange
+        let pt0 = Point::new();
+        let pt1 = Point::new().set_values(2.0, 0.0);
+        let pt2 = Point::new().set_values(1.5, 1.0);
+        let pt3 = Point::new().set_values(2.0, 2.0);
+        let pt4 = Point::new().set_values(0.0, 2.0);
+        let poly = Polygon::from_points(&vec![pt0, pt1, pt2, pt3, pt4]);
+
+        // Act
+        let triangulated = poly.triangulate(ZERO_TOLERANCE);
+
+        // Assert
+        println!("Triangulated: {:?}", triangulated);
+        assert_eq!(triangulated.len(), 3);
+    }
 }
 
 #[cfg(test)]

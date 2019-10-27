@@ -5,6 +5,8 @@ mod point;
 pub use self::line::Line;
 mod line;
 
+pub use self::line::LinePointRelation;
+
 pub use self::polygon::Polygon;
 mod polygon;
 
@@ -13,6 +15,8 @@ mod line_segment;
 
 pub use self::intersection::Intersection;
 pub mod intersection;
+
+pub use self::intersection::{LineLineIntersectionResult, PolygonPolygonIntersectionResult, LineSegmentLineSegmentIntersectionResult};
 
 pub use self::vector::Vector;
 mod vector;

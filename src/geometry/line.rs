@@ -1,6 +1,12 @@
 use super::{Point, constants};
 use std::f64::{INFINITY, NEG_INFINITY};
 
+pub enum LinePointRelation {
+    Left,
+    Right,
+    On
+}
+
 #[derive(Debug, Clone, PartialEq)]
 pub struct Line {
     pub m: f64, // rate of change
@@ -70,6 +76,50 @@ impl Line {
     // point-on-line check
     pub fn is_point_on(&self, pt: &Point, tol: f64) -> bool {
         (self._evaluate_x(pt.x) - pt.y).abs() < tol
+    }
+
+    /// Fast, static function to determine the point relation of a given test point to a infinite line defined by points
+    /// This is faster then first constructing a line for a single point check
+    /// If you want to check relation for multiple points, it is faster to use the method on a constructed line instead
+    /// 
+    /// # Examples
+    /// 
+    /// ```
+    /// use rust_nfp::geometry::{Point, Line, LinePointRelation};
+    /// 
+    /// let tol = 0.00001; // geometric tolerance
+    /// 
+    /// let pt_from = Point::new(); // point at origin
+    /// let pt_to = Point::new().set_values(0.0, 5.0);
+    /// 
+    /// let pt_test_left = Point::new().set_values(-1.0, -5.0);
+    /// let pt_test_right = Point::new().set_values(10.0, 15.0);
+    /// let pt_test_on = Point::new().set_values(0.0, 14.238);
+    /// 
+    /// match Line::line_point_relation_fast(&pt_from, &pt_to, &pt_test_left, tol) {
+    ///         LinePointRelation::Left => assert!(true),
+    ///         _ => panic!("Not left")};
+    /// match Line::line_point_relation_fast(&pt_from, &pt_to, &pt_test_right, tol) {
+    ///         LinePointRelation::Right => assert!(true),
+    ///         _ => panic!("Not right")};
+    /// match Line::line_point_relation_fast(&pt_from, &pt_to, &pt_test_on, tol) {
+    ///         LinePointRelation::On => assert!(true),
+    ///         _ => panic!("Not On")};
+    /// ```
+    /// 
+    pub fn line_point_relation_fast(pt_from: &Point, pt_to: &Point, pt_test: &Point, tol: f64) -> LinePointRelation {
+        let fac = (pt_to.x - pt_from.x) * (pt_test.y - pt_from.y) - (pt_test.x - pt_from.x) * (pt_to.y - pt_from.y);
+        if fac.abs() < tol {
+            LinePointRelation::On
+        }
+        else {
+            if fac < 0.0{
+                LinePointRelation::Right
+            }
+            else {
+                LinePointRelation::Left
+            }
+        }
     }
 
     // private x-evaluator

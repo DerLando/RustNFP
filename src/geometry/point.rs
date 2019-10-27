@@ -27,7 +27,7 @@ impl Point {
         else{
             let x_distance = other.x - self.x;
             let y_distance = other.y - self.y;
-            (x_distance * x_distance - y_distance * y_distance).sqrt()
+            (x_distance * x_distance + y_distance * y_distance).sqrt()
         }
     }
 
@@ -40,7 +40,7 @@ impl Point {
         else {
             let x_distance = other.x - self.x;
             let y_distance = other.y - self.y;
-            x_distance * x_distance - y_distance * y_distance
+            x_distance * x_distance + y_distance * y_distance
         }
     }
 

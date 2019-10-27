@@ -18,18 +18,36 @@ pub mod lib {
     /// 
     /// # Examples
     /// 
+    /// Square and Triangle NFP
+    /// 
     /// ```
     /// use rust_nfp::lib::calculate_convex_nfp;
     /// use rust_nfp::geometry::{Polygon, Point};
     /// 
     /// let square = Polygon::square(2.0);
     /// let tri = Polygon::from_points(&vec![Point::new(), Point::new().set_values(2.0, 2.0), Point::new().set_values(-2.0, 2.0)]);
-    /// let square2 = Polygon::square(2.0);
     /// let nfp = calculate_convex_nfp(&square, tri);
     /// 
     /// println!("nfp is: {:?}", nfp);
     /// assert_eq!(nfp.points.len(), 7);
     /// assert!(nfp.is_convex());
+    /// ```
+    /// 
+    /// Square and square NFP
+    /// 
+    /// ```
+    /// use rust_nfp::lib::calculate_convex_nfp;
+    /// use rust_nfp::geometry::{Polygon, Point};
+    /// 
+    /// let square1 = Polygon::square(2.0);
+    /// let square2 = Polygon::square(2.584);
+    /// let nfp = calculate_convex_nfp(&square1, square2);
+    /// 
+    /// println!("nfp is: {:?}", nfp);
+    /// assert_eq!(nfp.points.len(), 8);
+    /// assert!(nfp.is_convex());
+    /// ```
+    /// 
     pub fn calculate_convex_nfp(first: &Polygon, mut other: Polygon) -> Polygon {
 
         // helper line -> x-axis to compare angles to
@@ -42,11 +60,11 @@ pub mod lib {
         let mut all_edges = first.calculate_edges();
         all_edges.extend(other.calculate_edges());
 
+        // create sorted list, first item is first edge popped
+        let mut edges_sorted: Vec<LineSegment> = vec![all_edges.remove(0)];
+
         // sort by angle to x_axis
         all_edges.sort_by(|a, b| (x_axis.angle_to(&b)).partial_cmp(&(x_axis.angle_to(&a))).unwrap());
-
-        // create sorted list, first item is first edge popped
-        let mut edges_sorted: Vec<LineSegment> = vec![all_edges.pop().unwrap()];
 
         // iteratively sort by `flattest` angle between line segments and pop
         while all_edges.len() > 0 {

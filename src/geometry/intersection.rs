@@ -78,7 +78,7 @@ impl Intersection {
 
         // check denominator == 0 in tolerance -> early exit
         let denominator = first.denominator_with_other(other);
-        println!("denominator is {} for line segments {:?} and {:?}", denominator, first, other);
+        // println!("denominator is {} for line segments {:?} and {:?}", denominator, first, other);
         match denominator.abs() < tol{
             // parallel lines!, check for coincident, line segments have to share a point!
             true => match other.is_point_on(&first.from, tol) | first.is_point_on(&other.from, tol) {
@@ -95,7 +95,7 @@ impl Intersection {
                         pts.sort_by(|a, b| b.x.partial_cmp(&a.x).unwrap())
                     }
                     pts.reverse();
-                    println!("Points sorted are: {:?}", pts);
+                    // println!("Points sorted are: {:?}", pts);
                     // line segment from leftmost (or lowest) to rightmost (or highest) point
                     LineSegmentLineSegmentIntersectionResult::Overlap(LineSegment::new_from_points(&pts[0], &pts[3]))
                 }
@@ -121,18 +121,18 @@ impl Intersection {
                 let first_param = ((x1 - x3) * (y3 - y4) - (y1 - y3) * (x3 - x4)) / divisor;
                 // early exit if param not normalized
                 if (0.0 > first_param) || (first_param > 1.0){
-                    println!("First param was {}, early exit", first_param);
+                    // println!("First param was {}, early exit", first_param);
                     return LineSegmentLineSegmentIntersectionResult::None
                 }
 
                 let other_param = ((x1 - x2) * (y1 - y3) - (y1 - y2) * (x1 - x3)) / divisor * -1.0;
                 // early exit if param not normalized
                 if (0.0 > other_param) || (other_param > 1.0){
-                    println!("Other param was {}, early exit", other_param);
+                    // println!("Other param was {}, early exit", other_param);
                     return LineSegmentLineSegmentIntersectionResult::None
                 }
 
-                println!("Evaluation parameters I found are: {} and {}", first_param, other_param);
+                // println!("Evaluation parameters I found are: {} and {}", first_param, other_param);
 
                 // now we are sure the intersection point lies on both lines
                 let int_pt_x = ((x1 * y2 - y1 * x2) * (x3 - x4) - (x1 - x2) * (x3 * y4 - y3 * x4)) / divisor;

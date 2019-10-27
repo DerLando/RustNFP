@@ -20,6 +20,7 @@ pub enum PolygonPolygonIntersectionResult {
     Multiple(Vec<Point>) // multiple intersections
 }
 
+#[repr(C)]
 pub struct Intersection {
 
 }

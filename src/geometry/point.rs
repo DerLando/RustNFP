@@ -1,5 +1,6 @@
 use super::{Vector, constants};
 
+#[repr(C)]
 #[derive(Debug, Clone, PartialEq, Copy)]
 pub struct Point{
     pub x: f64,

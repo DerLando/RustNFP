@@ -3,6 +3,7 @@ use std::iter::FromIterator;
 use std::f64::consts::PI;
 use std::collections::HashSet;
 
+#[repr(C)]
 #[derive(Debug)]
 pub struct Polygon{
     pub points: Vec<Point>,

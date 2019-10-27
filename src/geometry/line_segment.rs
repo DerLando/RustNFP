@@ -1,5 +1,6 @@
 use super::{Line, Point, Vector};
 
+#[repr(C)]
 #[derive(Debug, PartialEq)]
 pub struct LineSegment{
     pub line: Line,

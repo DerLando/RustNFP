@@ -7,6 +7,7 @@ pub enum LinePointRelation {
     On
 }
 
+#[repr(C)]
 #[derive(Debug, Clone, PartialEq)]
 pub struct Line {
     pub m: f64, // rate of change

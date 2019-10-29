@@ -1,6 +1,5 @@
 use super::{Line, Point, Vector};
 
-#[repr(C)]
 #[derive(Debug, PartialEq)]
 pub struct LineSegment{
     pub line: Line,
@@ -62,6 +61,11 @@ impl LineSegment{
         Point {
             x: self.from.x + t * (self.to.x - self.from.x),
             y: self.from.y + t * (self.to.y - self.from.y)}
+    }
+
+    pub fn is_from_to_coincident(&self, other: &LineSegment, tol: f64) -> bool {
+        (self.from.epsilon_equals(&other.from, tol) | self.from.epsilon_equals(&other.to, tol)) &&
+        (self.to.epsilon_equals(&other.from, tol) | self.to.epsilon_equals(&other.to, tol))
     }
     
     /// Translate LineSegment to new start point

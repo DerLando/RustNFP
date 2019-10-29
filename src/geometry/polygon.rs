@@ -3,7 +3,11 @@ use std::iter::FromIterator;
 use std::f64::consts::PI;
 use std::collections::HashSet;
 
-#[repr(C)]
+pub enum PolygonEdgeRelation {
+    None,
+    Shared(usize, usize)
+}
+
 #[derive(Debug)]
 pub struct Polygon{
     pub points: Vec<Point>,
@@ -161,6 +165,47 @@ impl Polygon {
         self.points.reverse()
     }
 
+    /// helper do determine polygons who share an edge
+    /// 
+    /// # Examples
+    /// 
+    /// ```
+    /// use rust_nfp::geometry::{Polygon, Point}; // geometric structs
+    /// use rust_nfp::geometry::PolygonEdgeRelation; // Edge relation enum
+    /// 
+    /// let tol = 0.001; // geometric tolerance
+    /// 
+    /// let square = Polygon::square(2.0); // square with side length 2.0
+    /// let pt0 = Point::new().set_values(1.0, -1.0);
+    /// let pt1 = Point::new().set_values(2.0, 0.0);
+    /// let pt2 = Point::new().set_values(1.0, 1.0);
+    /// let tri = Polygon::from_points(&vec![pt0, pt1, pt2]); // Triangle coinciding with right edge of square
+    /// 
+    /// match square.shares_an_edge(&tri, tol){
+    ///     PolygonEdgeRelation::None => panic!("No edge relation found!"),
+    ///     PolygonEdgeRelation::Shared(s, o) => {
+    ///         assert_eq!(s, 1); // shared edge index on square is 1
+    ///         assert_eq!(o, 2); // shared edge index on tri is 2
+    ///     }    
+    /// };
+    /// ```
+    pub fn shares_an_edge(&self, other: &Polygon, tol: f64) -> PolygonEdgeRelation {
+        let self_edges = self.calculate_edges();
+        let other_edges = other.calculate_edges();
+
+        for s in 0..self_edges.len() {
+            for o in 0..other_edges.len() {
+                if !self_edges[s].is_from_to_coincident(&other_edges[o], tol){
+                    continue
+                }
+
+                return PolygonEdgeRelation::Shared(s, o);
+            }
+        }
+
+        PolygonEdgeRelation::None
+    }
+
     // public static square from side length
     pub fn square(len: f64) -> Polygon {
         let pt0 = Point::new().set_values(-len / 2.0, -len / 2.0);
@@ -291,88 +336,5 @@ impl Polygon {
         convex_parts.push(Polygon::from_points(&corners));
 
         return convex_parts;
-
-        // let corner_count = self.points.len();
-        // let angles = self.calculate_angles();
-        // let mut possible_partition_lines: Vec<PartitionLine> = Vec::new();
-        // let edges = self.calculate_edges();
-
-        // // iterate over all corners
-        // for n in 0..corner_count {
-        //     // inner angle > 180° -> cannot be a valid partition line
-        //     if angles[n] > PI {
-        //         continue;
-        //     }
-
-        //     let prev_index = (n + corner_count - 1) % corner_count;
-        //     let next_index = (n + 1) % corner_count;
-        //     let mut is_intersecting = false;
-
-        //     let line = LineSegment::new_from_points(&self.points[prev_index], &self.points[next_index]);
-        //     for i in 0..corner_count {
-        //         if (i == prev_index) | (i == n) {
-        //             continue
-        //         }
-        //         let edge = &edges[i];
-        //         match Intersection::line_segment_line_segment(&line, edge, tol) {
-        //             LineSegmentLineSegmentIntersectionResult::None => continue,
-        //             LineSegmentLineSegmentIntersectionResult::Overlap(_) => {
-        //                 is_intersecting = true;
-        //                 break;
-        //             },
-        //             LineSegmentLineSegmentIntersectionResult::Point(pt) => {
-        //                 if pt.epsilon_equals(&edge.from, tol) | pt.epsilon_equals(&edge.to, tol) {
-        //                     println!("Line for corner {}, intersecting edge {}, Point was fine {:?}", n, i, pt);
-        //                     continue;
-        //                 }
-        //                 else {
-        //                     println!("Line for corner {}, intersecting edge {}, Point was NOT fine {:?} \nLines in question are {:?} and \n{:?}", n, i, pt, line, edge);
-        //                     is_intersecting = true;
-        //                     break;
-        //                 }
-        //             }
-        //         }
-        //     }
-
-        //     if is_intersecting{
-        //         continue;
-        //     }
-        //     // TODO: We can calculate the angles here explicitly, so we don't have to iterate the corners twice
-
-        //     // push partition line
-        //     possible_partition_lines.push(PartitionLine{
-        //         from: prev_index, 
-        //         to: next_index,
-        //         middle: n,
-        //         length: self.points[prev_index].distance_to_squared(&self.points[next_index])});
-        // }
-
-        // // sort partition lines by their length
-        // possible_partition_lines.sort_by(|a, b| b.length.partial_cmp(&a.length).unwrap());
-
-        // println!("Partition lines sorted are: {:?}", possible_partition_lines);
-
-        // // TODO: THis has to be done iteratively!
-        // // After selecting our partition, we remove the vertex and do it all over on a new polygon
-        // // which is the original polygon minus the removed vertex
-        // // this feels awfully inefficient, but lets go with this for now
-
-        // // filter out all valid partitions
-        // let mut valid_partitions: Vec<PartitionLine> = Vec::new();
-        // while possible_partition_lines.len() > 0 {
-        //     // pop shortest line and add to valid partitions
-        //     valid_partitions.push(possible_partition_lines.pop().unwrap());
-
-        //     // remove all now invalid lines
-        //     let last_line = valid_partitions.last().unwrap();
-        //     possible_partition_lines.retain(|x| !x.contains_other_middle(&last_line));
-        // }
-
-        // // valid partitions is now filled, build new polys from it
-        // for partition in valid_partitions {
-        //     convex_parts.push(Polygon::from_points(&vec![self.points[partition.from], self.points[partition.middle], self.points[partition.to]]));
-        // }
-
-        // return convex_parts;
     }
 }

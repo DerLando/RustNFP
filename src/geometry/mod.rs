@@ -10,6 +10,8 @@ pub use self::line::LinePointRelation;
 pub use self::polygon::Polygon;
 mod polygon;
 
+pub use self::polygon::PolygonEdgeRelation;
+
 pub use self::line_segment::LineSegment;
 mod line_segment;
 

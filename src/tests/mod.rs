@@ -1,7 +1,7 @@
 #[cfg(test)]
 pub mod polygon_tests {
     // Note this useful idiom: importing names from outer (for mod tests) scope.
-    use super::super::geometry::{Polygon, Point, LineSegment, constants::ZERO_TOLERANCE};
+    use super::super::geometry::{Polygon, Point, LineSegment, constants::ZERO_TOLERANCE, PolygonMergeResult};
     use std::f64::consts::PI;
 
     #[test]
@@ -115,6 +115,18 @@ pub mod polygon_tests {
         // Assert
         println!("Triangulated: {:?}", triangulated);
         assert_eq!(triangulated.len(), 3);
+    }
+
+    #[test]
+    fn test_merge() {
+        // Arrange
+        let poly = Polygon::square(2.0);
+        let tris = poly.triangulate(ZERO_TOLERANCE);
+
+        match Polygon::merge_convex_polygon(&tris[0], &tris[1], ZERO_TOLERANCE) {
+            PolygonMergeResult::None => panic!("Not merged!"),
+            PolygonMergeResult::Merged(m) => assert_eq!(m.points.len(), 4)
+        }
     }
 }
 

@@ -8,6 +8,11 @@ pub enum PolygonEdgeRelation {
     Shared(usize, usize)
 }
 
+pub enum PolygonMergeResult {
+    None,
+    Merged(Polygon)
+}
+
 #[derive(Debug)]
 pub struct Polygon{
     pub points: Vec<Point>,
@@ -206,6 +211,37 @@ impl Polygon {
         PolygonEdgeRelation::None
     }
 
+    pub fn corner_index(&self, corner: &Point, tol: f64) -> Result<usize, ()> {
+        match self.points.iter().position(|x| x.epsilon_equals(&corner, tol)) {
+            Option::None => Result::Err(()),
+            Option::Some(index) => Result::Ok(index)
+        }
+    }
+
+    pub fn prev_corner_before_edge(&self, edge_index: usize) -> usize {
+        (edge_index - 1 + self.points.len()) % self.points.len()
+    }
+
+    pub fn next_corner_after_edge(&self, edge_index: usize) -> usize {
+        (edge_index + 2) % self.points.len()
+    }
+
+    pub fn edge_from_to(&self, edge_index: usize) -> (usize, usize) {
+        (edge_index, ((edge_index + 1) % self.points.len()))
+    }
+
+    pub fn corners_without_edge(&self, edge_index: usize) -> Vec<Point> {
+        let start_index = self.prev_corner_before_edge(edge_index);
+        let end_index = self.next_corner_after_edge(edge_index);
+        if start_index == end_index {
+            return vec![self.points[start_index]];
+        }
+        else {
+            println!("WithoutEdge: trying to take slice from {} to {} on {:?}", start_index, end_index, &self.points);
+            self.points[start_index..end_index].into_iter().cloned().collect::<Vec<Point>>()
+        }
+    }
+
     // public static square from side length
     pub fn square(len: f64) -> Polygon {
         let pt0 = Point::new().set_values(-len / 2.0, -len / 2.0);
@@ -336,5 +372,75 @@ impl Polygon {
         convex_parts.push(Polygon::from_points(&corners));
 
         return convex_parts;
+    }
+
+    pub fn merge_convex_polygon(first: &Polygon, other: &Polygon, tol: f64) -> PolygonMergeResult {
+        // test for coincident edge first
+        let mut first_edge_index: usize = 0;
+        let mut other_edge_index: usize = 0;
+        match first.shares_an_edge(&other, tol) {
+            PolygonEdgeRelation::None => return PolygonMergeResult::None,
+            PolygonEdgeRelation::Shared(s, o) => {
+                first_edge_index = s;
+                other_edge_index = o;
+            }
+        };
+
+        println!("Passed shared edge test...");
+
+        let first_shared_vertex_indices = first.edge_from_to(first_edge_index);
+        let other_shared_vertex_indices = other.edge_from_to(other_edge_index);
+        let prev = first.prev_corner_before_edge(first_edge_index);
+        let next = other.next_corner_after_edge(other_edge_index);
+
+        // first shared vertex
+        use crate::geometry::LinePointRelation;
+        match Line::line_point_relation_fast(
+            &first.points[prev],
+            &other.points[next],
+            &first.points[first_shared_vertex_indices.1],
+            tol) {
+                LinePointRelation::Right =>{
+                    println!("Got right for first: {:?}, other: {:?} and test: {:?} ", &first.points[prev], &other.points[next], &first.points[first_shared_vertex_indices.1]);
+                    return PolygonMergeResult::None},
+                LinePointRelation::On => return PolygonMergeResult::None,
+                LinePointRelation::Left => (),//do nothing
+            };
+        
+        println!("Passed first point relation test...");
+        
+        // second shared vertex
+        match Line::line_point_relation_fast(
+            &other.points[next],
+            &first.points[prev],
+            &first.points[first_shared_vertex_indices.0],
+            tol) {
+                LinePointRelation::Right => return PolygonMergeResult::None,
+                LinePointRelation::On => return PolygonMergeResult::None,
+                LinePointRelation::Left => (), // do nothing
+            };
+        
+        println!("Passed second vertex relation test...");
+        
+        // if we get here we can finally merge
+        let mut other_corners = other.corners_without_edge(other_edge_index);
+        let mut corners: Vec<Point> = first.points.iter().cloned().collect();
+
+        println!("other_corners are: {:?}", other_corners);
+
+        println!("Attempting to take slice from {}, to {} on vec: {:?}", first_shared_vertex_indices.0, first_shared_vertex_indices.1, corners);
+        
+        if first_shared_vertex_indices.1 == 0 {
+            corners.append(&mut other_corners);
+            println!("Appending... corners are now: {:?}", &corners);
+        }
+        else {
+            corners.splice(first_shared_vertex_indices.0..first_shared_vertex_indices.1, other_corners.into_iter());
+            println!("Splicing... corners are now: {:?}", &corners);
+        }
+
+        return PolygonMergeResult::Merged(Polygon::from_points(&corners));
+
+
     }
 }

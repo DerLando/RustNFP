@@ -128,6 +128,20 @@ pub mod polygon_tests {
             PolygonMergeResult::Merged(m) => assert_eq!(m.points.len(), 4)
         }
     }
+
+    #[test]
+    fn test_subdivide() {
+        // Arrange
+        let poly = Polygon::square(2.0);
+
+        // Act
+        let subdivided = poly.subdivide_concave_polygon_in_convex_pieces(ZERO_TOLERANCE);
+        
+        // Assert
+        assert!(subdivided.len() != 0);
+        assert_eq!(subdivided.len(), 1);
+        assert_eq!(subdivided[0].points.len(), 4);
+    }
 }
 
 #[cfg(test)]

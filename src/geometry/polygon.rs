@@ -441,6 +441,43 @@ impl Polygon {
 
         return PolygonMergeResult::Merged(Polygon::from_points(&corners));
 
+    }
 
+    pub fn subdivide_concave_polygon_in_convex_pieces(&self, tol: f64) -> Vec<Polygon> {
+        // triangulate
+        let mut tris = self.triangulate(tol);
+
+        let mut merge_occured = true;
+
+        while merge_occured {
+            merge_occured = false; // set merge flag to false
+            let len_tris = tris.len();
+            let mut merged: Vec<Polygon> = Vec::with_capacity(len_tris); // empty vec to hold all merged polys
+            let mut merged_indices: Vec<usize> = Vec::with_capacity(len_tris); // same thing for indices of merged to clean up at end of loop
+            for i in 0..len_tris {
+                for j in 0..len_tris {
+                    if i == j {continue;} // dont merge same polys :)
+                    if merged_indices.contains(&i) | merged_indices.contains(&j) {continue;} // if already merged dont merge again
+                    match Polygon::merge_convex_polygon(&tris[i], &tris[j], tol) {
+                        PolygonMergeResult::None => continue,
+                        PolygonMergeResult::Merged(m) => {
+                            merge_occured = true;
+                            merged_indices.push(i);
+                            merged_indices.push(j);
+                            merged.push(m);
+                        }
+                    }
+                }
+            }
+            merged_indices.sort(); // sort merged indices
+            merged_indices.reverse();
+            // remove all polys at merged indices
+            for index in merged_indices {
+                tris.remove(index);
+            }
+            tris.append(&mut merged); // move all merged polys into tri vec
+        }
+
+        return tris;
     }
 }

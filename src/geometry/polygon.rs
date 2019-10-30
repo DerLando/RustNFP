@@ -219,6 +219,9 @@ impl Polygon {
     }
 
     pub fn prev_corner_before_edge(&self, edge_index: usize) -> usize {
+        if edge_index == 0 {
+            return self.points.len() - 1;
+        }
         (edge_index - 1 + self.points.len()) % self.points.len()
     }
 
@@ -233,13 +236,22 @@ impl Polygon {
     pub fn corners_without_edge(&self, edge_index: usize) -> Vec<Point> {
         let start_index = self.prev_corner_before_edge(edge_index);
         let end_index = self.next_corner_after_edge(edge_index);
-        if start_index == end_index {
+        if start_index == end_index { // -> we can just return the corner at the given index
             return vec![self.points[start_index]];
         }
-        else {
-            println!("WithoutEdge: trying to take slice from {} to {} on {:?}", start_index, end_index, &self.points);
-            self.points[start_index..end_index].into_iter().cloned().collect::<Vec<Point>>()
+        if start_index > end_index { // -> do some index trickery to iterate over end, this can for sure be done better!
+            let corner_count = end_index + start_index + (self.points.len() - start_index);
+            let mut corners: Vec<Point> = Vec::with_capacity(corner_count);
+            for i in 0..corner_count {
+                let index = (start_index + i) % self.points.len();
+                corners.push(self.points[index]);
+            }
+            return corners;
         }
+
+        println!("WithoutEdge: trying to take slice from {} to {} on {:?}", start_index, end_index, &self.points);
+        self.points[start_index..end_index].into_iter().cloned().collect::<Vec<Point>>()
+        
     }
 
     // public static square from side length

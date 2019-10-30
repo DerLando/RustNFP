@@ -118,7 +118,7 @@ pub mod polygon_tests {
     }
 
     #[test]
-    fn test_merge() {
+    fn test_merge_square() {
         // Arrange
         let poly = Polygon::square(2.0);
         let tris = poly.triangulate(ZERO_TOLERANCE);
@@ -130,7 +130,22 @@ pub mod polygon_tests {
     }
 
     #[test]
-    fn test_subdivide() {
+    fn test_subdivide_circle() {
+        // Arrange
+        let pt_count = 20;
+        let circle = Polygon::circle(10.0, pt_count);
+
+        // Act
+        let subdivided = circle.subdivide_concave_polygon_in_convex_pieces(ZERO_TOLERANCE);
+
+        // Assert
+        assert!(subdivided.len() != 0);
+        assert_eq!(subdivided.len(), 1);
+        assert_eq!(subdivided[0].points.len(), pt_count);
+    }
+
+    #[test]
+    fn test_subdivide_square() {
         // Arrange
         let poly = Polygon::square(2.0);
 
